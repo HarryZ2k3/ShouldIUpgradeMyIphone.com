@@ -42,3 +42,36 @@ select {
   color: #333;
   font-weight: 500;
 }
+
+.specs-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.spec-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 30px;
+  width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.spec-card h3 {
+  text-align: center;
+  color: #4b4b4b;
+  margin-bottom: 16px;
+}
+
+.spec-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.spec-card li {
+  margin-bottom: 8px;
+  font-size: 15px;
+}

@@ -7,6 +7,27 @@ function App() {
   const [rightModel, setRightModel] = useState('');
   const [result, setResult] = useState('');
 
+  const mockSpecs = {
+    "iPhone 12": {
+      display: "6.1\" OLED",
+      processor: "A14 Bionic",
+      ram: "4GB",
+      battery: "2815mAh",
+      camera: "Dual 12MP",
+      os: "iOS 14",
+      price: "$799"
+    },
+    "iPhone 15 Pro": {
+      display: "6.1\" LTPO OLED",
+      processor: "A17 Pro",
+      ram: "8GB",
+      battery: "3274mAh",
+      camera: "Triple 48MP + LiDAR",
+      os: "iOS 17",
+      price: "$999"
+    }
+  };
+
   useEffect(() => {
     fetch('/api/iphones')
       .then(res => res.json())
@@ -68,6 +89,27 @@ function App() {
       </div>
 
       <div id="separator" />
+      {leftModel && rightModel && leftModel !== rightModel && (
+  <div className="specs-grid">
+    <div className="spec-card">
+      <h3>{leftModel}</h3>
+      <ul>
+        {mockSpecs[leftModel] ? Object.entries(mockSpecs[leftModel]).map(([key, value]) => (
+          <li key={key}><strong>{key}:</strong> {value}</li>
+        )) : <li>No mock data</li>}
+      </ul>
+    </div>
+
+    <div className="spec-card">
+      <h3>{rightModel}</h3>
+      <ul>
+        {mockSpecs[rightModel] ? Object.entries(mockSpecs[rightModel]).map(([key, value]) => (
+          <li key={key}><strong>{key}:</strong> {value}</li>
+        )) : <li>No mock data</li>}
+      </ul>
+    </div>
+  </div>
+)}
 
       {result && <div className="result-display">{result}</div>}
     </div>
