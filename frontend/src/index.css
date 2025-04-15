@@ -1,13 +1,116 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  background: linear-gradient(to bottom left, #ffe0fb, #aafff7);
+  font-family: sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.App {
+  text-align: center;
+  padding-top: 40px;
+}
+
+/* Title */
+.App h2 {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 40px;
+}
+
+/* Compare Section */
+.compare-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+
+#selectLeft,
+#selectRight {
+  width: 350px;
+  padding: 10px;
+  font-size: 16px;
+  color: grey;
+}
+
+/* Button */
+#BtnCompare {
+  background-color: rgb(93, 93, 249);
+  color: rgb(192, 155, 251);
+  font-size: 20px;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  padding: 15px 32px;
+  border: none;
+  border-radius: 10px;
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+#BtnCompare:hover {
+  background-color: blue;
+  padding: 17px 36px;
+  font-size: 24px;
+  color: white;
+}
+
+#BtnCompare:active {
+  animation: bounce 0.2s ease;
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.8); }
+  100% { transform: scale(1); }
+}
+
+/* Search Bar */
+.custom-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 400px;
+  border: 2px solid black;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 30px auto 40px auto;
+}
+
+.custom-search input {
+  flex: 1;
+  border: none;
+  padding: 12px 16px;
+  font-size: 16px;
+  outline: none;
+  color: #333;
+}
+
+.custom-search input::placeholder {
+  color: gray;
+}
+
+.custom-search button {
+  background-color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-left: 2px solid black;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-search button:hover {
+  background-color: rgb(212, 212, 212);
+  transition: 0.3s ease;
+}
+
+/* Center separator */
+#separator {
+  margin: 50px auto;
+  width: 5px;
+  height: 540px;
+  background-color: #61a1a2;
 }
