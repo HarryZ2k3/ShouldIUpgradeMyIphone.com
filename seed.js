@@ -3,10 +3,11 @@ const dotenv = require('dotenv');
 const csv = require('csvtojson');
 const iPhone = require('./models/Iphone');
 
+
 dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI;
-const CSV_FILE_PATH = './iPhone_Comparison_Data_Final.csv'; // place the file in the root folder
+const CSV_FILE_PATH = './iPhone_Comparison_Data_Final.csv'; // Make sure the file is here
 
 async function seedDatabase() {
   try {
@@ -17,7 +18,8 @@ async function seedDatabase() {
     console.log('✅ Connected to MongoDB');
 
     const jsonArray = await csv().fromFile(CSV_FILE_PATH);
-    await iPhone.deleteMany(); // Optional: Clear old entries
+
+    await iPhone.deleteMany(); // Clear existing entries (optional)
     await iPhone.insertMany(jsonArray);
 
     console.log(`✅ Successfully inserted ${jsonArray.length} iPhone records`);
