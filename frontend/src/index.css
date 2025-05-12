@@ -114,3 +114,54 @@ body {
   height: 540px;
   background-color: #61a1a2;
 }
+
+.spec-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 30px;
+  width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  overflow-wrap: break-word;     /* ✅ handles long text */
+  word-break: break-word;        /* ✅ ensures long words don't overflow */
+  max-height: 80vh;              /* ✅ optional: limit height */
+  overflow-y: auto;              /* ✅ allow scroll if needed */
+}
+
+.spec-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.spec-card li {
+  margin-bottom: 8px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.spec-card img {
+  max-height: 180px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+.image-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 80px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+.compare-image {
+  height: 220px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.1));
+  transition: transform 0.2s ease;
+}
+
+.compare-image:hover {
+  transform: scale(1.05);
+}

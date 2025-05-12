@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 // Optional quick endpoint to get names only
 app.get('/api/iphones', async (req, res) => {
   try {
-    const models = await Iphone.find({}, 'name');
+    const models = await Iphone.find({}, { "Model Name": 1, _id: 0 });
     res.json(models);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch data' });
