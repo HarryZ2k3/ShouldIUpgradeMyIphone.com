@@ -38,14 +38,20 @@ function App() {
     "iPhone 16 Pro Max"
   ];
   return order.indexOf(name);
+  
 };
   const getHighlightClass = (key, value, left, right, isLeft) => {
-  const fieldsToCompare = ["RAM (GB)", "Battery Life (hrs)"];
+  const fieldsToCompare = [
+    "RAM (GB)",
+    "Battery Life (hrs)",
+    "Storage options",
+    "Rear Camera Setup"
+  ];
   if (!fieldsToCompare.includes(key)) return '';
 
-  const leftVal = parseFloat(left[key]);
-  const rightVal = parseFloat(right[key]);
-  if (isNaN(leftVal) || isNaN(rightVal)) return '';
+  const leftVal = left[key];
+  const rightVal = right[key];
+  if (!leftVal || !rightVal) return '';
 
   const leftIndex = getModelYearIndex(left["Model Name"]);
   const rightIndex = getModelYearIndex(right["Model Name"]);
@@ -53,17 +59,75 @@ function App() {
 
   const newerIsLeft = leftIndex > rightIndex;
 
-  const newerVal = newerIsLeft ? leftVal : rightVal;
-  const olderVal = newerIsLeft ? rightVal : leftVal;
+  let betterSide = null;
 
-  if (newerVal > olderVal && ((isLeft && newerIsLeft) || (!isLeft && !newerIsLeft))) {
+  if (key === "RAM (GB)" || key === "Battery Life (hrs)") {
+    const l = parseFloat(leftVal);
+    const r = parseFloat(rightVal);
+    if (isNaN(l) || isNaN(r)) return '';
+    betterSide = l > r ? "left" : r > l ? "right" : null;
+  }
+
+  if (key === "Storage options") {
+    const l = (leftVal.match(/\d+GB/g) || []).length;
+    const r = (rightVal.match(/\d+GB/g) || []).length;
+    betterSide = l > r ? "left" : r > l ? "right" : null;
+  }
+
+  if (key === "Rear Camera Setup") {
+    const l = (leftVal.match(/\d+/g) || []).length;
+    const r = (rightVal.match(/\d+/g) || []).length;
+    betterSide = l > r ? "left" : r > l ? "right" : null;
+  }
+
+  if (!betterSide) return '';
+
+  const isNewer = isLeft === newerIsLeft;
+  if ((betterSide === "left" && isLeft && isNewer) || (betterSide === "right" && !isLeft && !isNewer)) {
     return 'better';
-  } else if (newerVal < olderVal && ((isLeft && newerIsLeft) || (!isLeft && !newerIsLeft))) {
+  } else if ((betterSide === "left" && isLeft && !isNewer) || (betterSide === "right" && !isLeft && isNewer)) {
     return 'worse';
   }
 
   return '';
 };
+
+const getHighlightIcon = (key, value, left, right, isLeft) => {
+  const fields = ["RAM (GB)", "Battery Life (hrs)", "Storage options", "Rear Camera Setup"];
+  if (!fields.includes(key)) return null;
+
+  const leftIndex = getModelYearIndex(left["Model Name"]);
+  const rightIndex = getModelYearIndex(right["Model Name"]);
+  if (leftIndex === -1 || rightIndex === -1) return null;
+
+  const newerIsLeft = leftIndex > rightIndex;
+  const newerVal = newerIsLeft ? left[key] : right[key];
+  const olderVal = newerIsLeft ? right[key] : left[key];
+
+  let compare = 0;
+  if (key === "RAM (GB)" || key === "Battery Life (hrs)") {
+    const n = parseFloat(newerVal);
+    const o = parseFloat(olderVal);
+    if (isNaN(n) || isNaN(o)) return null;
+    compare = n - o;
+  } else if (key === "Storage options") {
+    const n = (newerVal.match(/\d+GB/g) || []).length;
+    const o = (olderVal.match(/\d+GB/g) || []).length;
+    compare = n - o;
+  } else if (key === "Rear Camera Setup") {
+    const n = (newerVal.match(/\d+/g) || []).length;
+    const o = (olderVal.match(/\d+/g) || []).length;
+    compare = n - o;
+  }
+
+  const isNewer = isLeft === newerIsLeft;
+
+  if (compare > 0 && isNewer) return <span title="Improved" style={{ marginLeft: '6px' }}>✔️</span>;
+  if (compare < 0 && isNewer) return <span title="Worse than predecessor" style={{ marginLeft: '6px' }}>⚠️</span>;
+  return null;
+};
+
+
 
 
   const getImagePath = (modelName) => {
@@ -201,26 +265,29 @@ function App() {
               <h3>{leftSpecs["Model Name"]}</h3>
               <ul>
                 {Object.entries(leftSpecs).map(([key, value]) =>
-                  !["_id", "__v", "name", "Model Name"].includes(key) ? (
-                    <li key={key} className={getHighlightClass(key, value, leftSpecs, rightSpecs, key === "RAM (GB)")}>
+                  !["_id", "__v", "name", "Model Name"].includes(key) && !key.toLowerCase().startsWith("field") ? (
+                    <li key={key}className={getHighlightClass(key, value, leftSpecs, rightSpecs, true)}>
                       <strong>{key}:</strong> {value}
+                      {getHighlightIcon(key, value, leftSpecs, rightSpecs, true)}
                     </li>
                   ) : null
                 )}
               </ul>
+
             </div>
 
             <div className="spec-card">
               <h3>{rightSpecs["Model Name"]}</h3>
               <ul>
                 {Object.entries(rightSpecs).map(([key, value]) =>
-                  !["_id", "__v", "name", "Model Name"].includes(key) ? (
-                    <li key={key} className={getHighlightClass(key, value, leftSpecs, rightSpecs, key === "RAM (GB)")}>
+                  !["_id", "__v", "name", "Model Name"].includes(key) && !key.toLowerCase().startsWith("field") ? (
+                    <li key={key} className={getHighlightClass(key, value, leftSpecs, rightSpecs, false)}>
                       <strong>{key}:</strong> {value}
                     </li>
                   ) : null
                 )}
               </ul>
+
             </div>
           </div>
         </>
