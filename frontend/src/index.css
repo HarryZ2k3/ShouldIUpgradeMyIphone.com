@@ -147,3 +147,17 @@ body {
   color: #333;
   font-weight: 500;
 }
+
+.better {
+  background-color: #e0ffe4;
+  font-weight: bold;
+  border-left: 4px solid #1cbf1c;
+  padding-left: 6px;
+}
+
+.worse {
+  background-color: #ffe4e4;
+  font-weight: normal;
+  border-left: 4px solid #ff4d4d;
+  padding-left: 6px;
+}
