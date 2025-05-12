@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Iphone = require('../models/Iphone');
-
+router.get('/', async (req, res) => {
+  try {
+    const allModels = await Iphone.find();
+    res.json(allModels);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch iPhone list' });
+  }
+});
 // GET /api/iphones/:name
 router.get('/:name', async (req, res) => {
   try {
