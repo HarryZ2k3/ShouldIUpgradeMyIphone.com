@@ -8,6 +8,24 @@ function App() {
   const [leftSpecs, setLeftSpecs] = useState(null);
   const [rightSpecs, setRightSpecs] = useState(null);
   const [result, setResult] = useState('');
+  const getHighlightClass = (key, value, left, right, isLeft) => {
+  const fieldsToCompare = ["RAM (GB)", "Battery Life (hrs)"];
+  if (!fieldsToCompare.includes(key)) return '';
+
+  const leftVal = parseFloat(left[key]);
+  const rightVal = parseFloat(right[key]);
+  if (isNaN(leftVal) || isNaN(rightVal)) return '';
+
+  if (isLeft) {
+    if (leftVal > rightVal) return 'better';
+    if (leftVal < rightVal) return 'worse';
+  } else {
+    if (rightVal > leftVal) return 'better';
+    if (rightVal < leftVal) return 'worse';
+  }
+
+  return '';
+};
 
   const getImagePath = (modelName) => {
   if (!modelName || typeof modelName !== 'string') return null;
