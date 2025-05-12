@@ -35,7 +35,7 @@ body {
   color: grey;
 }
 
-/* Button */
+/* Compare Button */
 #BtnCompare {
   background-color: rgb(93, 93, 249);
   color: rgb(192, 155, 251);
@@ -65,54 +65,49 @@ body {
   100% { transform: scale(1); }
 }
 
-/* Search Bar */
-.custom-search {
+/* Image Layout */
+.image-compare-wrapper {
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 400px;
-  border: 2px solid black;
-  border-radius: 12px;
-  overflow: hidden;
-  margin: 30px auto 40px auto;
-}
-
-.custom-search input {
-  flex: 1;
-  border: none;
-  padding: 12px 16px;
-  font-size: 16px;
-  outline: none;
-  color: #333;
-}
-
-.custom-search input::placeholder {
-  color: gray;
-}
-
-.custom-search button {
-  background-color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  border-left: 2px solid black;
-  height: 100%;
-  display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 80px;
+  margin-top: 40px;
+  margin-bottom: 30px;
+  position: relative;
 }
 
-.custom-search button:hover {
-  background-color: rgb(212, 212, 212);
-  transition: 0.3s ease;
+.vertical-line {
+  width: 3px;
+  height: 240px;
+  background-color: #61a1a2;
 }
 
-/* Center separator */
+.compare-image {
+  height: 220px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.1));
+  transition: transform 0.2s ease;
+}
+
+.compare-image:hover {
+  transform: scale(1.05);
+}
+
+/* Center separator (optional if used below cards) */
 #separator {
   margin: 50px auto;
   width: 5px;
   height: 540px;
   background-color: #61a1a2;
+}
+
+/* Specs Grid */
+.specs-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
+  flex-wrap: wrap;
 }
 
 .spec-card {
@@ -122,10 +117,16 @@ body {
   width: 300px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: left;
-  overflow-wrap: break-word;     /* ✅ handles long text */
-  word-break: break-word;        /* ✅ ensures long words don't overflow */
-  max-height: 80vh;              /* ✅ optional: limit height */
-  overflow-y: auto;              /* ✅ allow scroll if needed */
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.spec-card h3 {
+  text-align: center;
+  color: #4b4b4b;
+  margin-bottom: 16px;
 }
 
 .spec-card ul {
@@ -140,28 +141,9 @@ body {
   line-height: 1.4;
 }
 
-.spec-card img {
-  max-height: 180px;
-  object-fit: contain;
-  margin-bottom: 12px;
-}
-
-.image-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 80px;
-  margin-top: 40px;
-  margin-bottom: 20px;
-}
-
-.compare-image {
-  height: 220px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(0,0,0,0.1));
-  transition: transform 0.2s ease;
-}
-
-.compare-image:hover {
-  transform: scale(1.05);
+.result-display {
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  color: #333;
+  font-weight: 500;
 }
