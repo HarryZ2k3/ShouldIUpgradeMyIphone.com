@@ -8,6 +8,37 @@ function App() {
   const [leftSpecs, setLeftSpecs] = useState(null);
   const [rightSpecs, setRightSpecs] = useState(null);
   const [result, setResult] = useState('');
+  const getModelYearIndex = (name) => {
+  const order = [
+    "iPhone SE (2nd generation)",
+    "iPhone SE (3rd generation)",
+    "iPhone XR",
+    "iPhone 11",
+    "iPhone 11 Pro",
+    "iPhone 11 Pro Max",
+    "iPhone 12",
+    "iPhone 12 mini",
+    "iPhone 12 Pro",
+    "iPhone 12 Pro Max",
+    "iPhone 13",
+    "iPhone 13 mini",
+    "iPhone 13 Pro",
+    "iPhone 13 Pro Max",
+    "iPhone 14",
+    "iPhone 14 Plus",
+    "iPhone 14 Pro",
+    "iPhone 14 Pro Max",
+    "iPhone 15",
+    "iPhone 15 Plus",
+    "iPhone 15 Pro",
+    "iPhone 15 Pro Max",
+    "iPhone 16",
+    "iPhone 16 Plus",
+    "iPhone 16 Pro",
+    "iPhone 16 Pro Max"
+  ];
+  return order.indexOf(name);
+};
   const getHighlightClass = (key, value, left, right, isLeft) => {
   const fieldsToCompare = ["RAM (GB)", "Battery Life (hrs)"];
   if (!fieldsToCompare.includes(key)) return '';
@@ -16,16 +47,24 @@ function App() {
   const rightVal = parseFloat(right[key]);
   if (isNaN(leftVal) || isNaN(rightVal)) return '';
 
-  if (isLeft) {
-    if (leftVal > rightVal) return 'better';
-    if (leftVal < rightVal) return 'worse';
-  } else {
-    if (rightVal > leftVal) return 'better';
-    if (rightVal < leftVal) return 'worse';
+  const leftIndex = getModelYearIndex(left["Model Name"]);
+  const rightIndex = getModelYearIndex(right["Model Name"]);
+  if (leftIndex === -1 || rightIndex === -1) return '';
+
+  const newerIsLeft = leftIndex > rightIndex;
+
+  const newerVal = newerIsLeft ? leftVal : rightVal;
+  const olderVal = newerIsLeft ? rightVal : leftVal;
+
+  if (newerVal > olderVal && ((isLeft && newerIsLeft) || (!isLeft && !newerIsLeft))) {
+    return 'better';
+  } else if (newerVal < olderVal && ((isLeft && newerIsLeft) || (!isLeft && !newerIsLeft))) {
+    return 'worse';
   }
 
   return '';
 };
+
 
   const getImagePath = (modelName) => {
   if (!modelName || typeof modelName !== 'string') return null;
