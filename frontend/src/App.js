@@ -10,40 +10,44 @@ function App() {
   const [result, setResult] = useState('');
 
   const getImagePath = (modelName) => {
-    if (!modelName || typeof modelName !== 'string') return null;
+  if (!modelName || typeof modelName !== 'string') return null;
 
-    const map = {
-      "iPhone 11": "11.png",
-      "iPhone 11 Pro": "11pro.png",
-      "iPhone 11 Pro Max": "11promax.png",
-      "iPhone 12": "12.png",
-      "iPhone 12 mini": "12mini.png",
-      "iPhone 12 Pro": "12pro.png",
-      "iPhone 12 Pro Max": "12promax.png",
-      "iPhone 13": "13.png",
-      "iPhone 13 mini": "13mini.png",
-      "iPhone 13 Pro": "13pro.png",
-      "iPhone 13 Pro Max": "13promax.png",
-      "iPhone 14": "14.png",
-      "iPhone 14 Plus": "14plus.png",
-      "iPhone 14 Pro": "14pro.png",
-      "iPhone 14 Pro Max": "14promax.png",
-      "iPhone 15": "15.png",
-      "iPhone 15 Plus": "15plus.png",
-      "iPhone 15 Pro": "15pro.png",
-      "iPhone 15 Pro Max": "15promax.png",
-      "iPhone 16": "16.png",
-      "iPhone 16 Plus": "16plus.png",
-      "iPhone 16 Pro": "16pro.png",
-      "iPhone 16 Pro Max": "16promax.png",
-      "iPhone SE (2nd generation)": "SE(2nd).png",
-      "iPhone SE (3rd generation)": "SE(3rd).png",
-      "iPhone XR": "XR.png"
-    };
-
-    const file = map[modelName];
-    return file ? `/images/${file}` : null;
+  const map = {
+    "iphone 11": "11.png",
+    "iphone 11 pro": "11pro.png",
+    "iphone 11 pro max": "11promax.png",
+    "iphone 12": "12.png",
+    "iphone 12 mini": "12mini.png",
+    "iphone 12 pro": "12pro.png",
+    "iphone 12 pro max": "12promax.png",
+    "iphone 13": "13.png",
+    "iphone 13 mini": "13mini.png",
+    "iphone 13 pro": "13pro.png",
+    "iphone 13 pro max": "13promax.png",
+    "iphone 14": "14.png",
+    "iphone 14 plus": "14plus.png",
+    "iphone 14 pro": "14pro.png",
+    "iphone 14 pro max": "14promax.png",
+    "iphone 15": "15.png",
+    "iphone 15 plus": "15plus.png",
+    "iphone 15 pro": "15pro.png",
+    "iphone 15 pro max": "15promax.png",
+    "iphone 16": "16.png",
+    "iphone 16 plus": "16plus.png",
+    "iphone 16 pro": "16pro.png",
+    "iphone 16 pro max": "16promax.png",
+    "iphone se (2nd generation)": "SE2nd.png",
+    "iphone se (3rd generation)": "SE3rd.png",
+    "iphone xr": "XR.png"
   };
+
+  const normalized = modelName.trim().toLowerCase();
+  const file = map[normalized];
+
+  if (!file) console.warn("Image not found for:", modelName);
+  return file ? `/images/${file}` : null;
+  };
+
 
   useEffect(() => {
     fetch('/api/iphones')
@@ -141,7 +145,9 @@ function App() {
               <ul>
                 {Object.entries(leftSpecs).map(([key, value]) =>
                   !["_id", "__v", "name", "Model Name"].includes(key) ? (
-                    <li key={key}><strong>{key}:</strong> {value}</li>
+                    <li key={key} className={getHighlightClass(key, value, leftSpecs, rightSpecs, key === "RAM (GB)")}>
+                      <strong>{key}:</strong> {value}
+                    </li>
                   ) : null
                 )}
               </ul>
@@ -152,7 +158,9 @@ function App() {
               <ul>
                 {Object.entries(rightSpecs).map(([key, value]) =>
                   !["_id", "__v", "name", "Model Name"].includes(key) ? (
-                    <li key={key}><strong>{key}:</strong> {value}</li>
+                    <li key={key} className={getHighlightClass(key, value, leftSpecs, rightSpecs, key === "RAM (GB)")}>
+                      <strong>{key}:</strong> {value}
+                    </li>
                   ) : null
                 )}
               </ul>
