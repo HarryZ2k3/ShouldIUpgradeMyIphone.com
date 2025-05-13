@@ -69,33 +69,32 @@ function App() {
   };
 
   const getUpgradeVerdict = (left, right) => {
-  if (!left || !right) return '';
-  const compareFields = [
-    "RAM (GB)", "Battery Life (hrs)", "Rear Camera Setup", "Display Size (inches)", "Weight (g)"
-  ];
-  let score = 0;
-  compareFields.forEach((key) => {
-    const a = parseFloat(right[key]);
-    const b = parseFloat(left[key]);
-    if (!isNaN(a) && !isNaN(b)) {
-      if (key === "Weight (g)") {
-        if (a < b) score++; // Lighter is better
-      } else {
-        if (a > b) score++; // Higher value is better
-      }
-    } else {
-      // Fallback: try counting camera lenses
-      if (key === "Rear Camera Setup") {
+    if (!left || !right) return '';
+
+    const compareFields = [
+      "RAM (GB)", "Battery Life (hrs)", "Rear Camera Setup", "Display Size (inches)", "Weight (g)"
+    ];
+
+    let score = 0;
+    compareFields.forEach((key) => {
+      const a = parseFloat(right[key]);
+      const b = parseFloat(left[key]);
+      if (!isNaN(a) && !isNaN(b)) {
+        if (key === "Weight (g)") {
+          if (a < b) score++; // Lighter is better
+        } else {
+          if (a > b) score++; // Bigger/higher is better
+        }
+      } else if (key === "Rear Camera Setup") {
         const c1 = (left[key]?.match(/\d+/g) || []).length;
         const c2 = (right[key]?.match(/\d+/g) || []).length;
         if (c2 > c1) score++;
       }
-    }
-  });
+    });
 
-  if (score >= 3) return "✅ Upgrade Recommended";
-  if (score === 1 || score === 2) return "⚖️ Minimal Difference";
-  return "❌ Downgrade or Not Worth It";
+    if (score >= 3) return "✅ Upgrade Recommended";
+    if (score === 1 || score === 2) return "⚖️ Minimal Difference";
+    return "❌ Downgrade or Not Worth It";
   };
 
   const getImagePath = (modelName) => {
@@ -150,23 +149,25 @@ function App() {
   return (
     <div className="App">
       <h2><b>Should I Upgrade My iPhone</b></h2>
-          <div className="compare-container">
-            <div className="dropdown-group">
-              <label htmlFor="selectLeft">My Current iPhone</label>
-              <select id="selectLeft" value={leftModel} onChange={e => setLeftModel(e.target.value)}>
-                {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
-              </select>
-            </div>
 
-            <button id="BtnCompare" onClick={handleCompare}>Compare</button>
+      <div className="compare-container">
+        <div className="dropdown-group">
+          <label htmlFor="selectLeft">My Current iPhone</label>
+          <select id="selectLeft" value={leftModel} onChange={e => setLeftModel(e.target.value)}>
+            {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+          </select>
+        </div>
 
-            <div className="dropdown-group">
-              <label htmlFor="selectRight">iPhone I’m Considering</label>
-              <select id="selectRight" value={rightModel} onChange={e => setRightModel(e.target.value)}>
-                {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
-              </select>
-            </div>
-          </div>
+        <button id="BtnCompare" onClick={handleCompare}>Compare</button>
+
+        <div className="dropdown-group">
+          <label htmlFor="selectRight">iPhone I'm Considering</label>
+          <select id="selectRight" value={rightModel} onChange={e => setRightModel(e.target.value)}>
+            {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+          </select>
+        </div>
+      </div>
+
       {leftSpecs && rightSpecs && (
         <>
           <div className="image-compare-wrapper">
@@ -212,14 +213,13 @@ function App() {
               </div>
             ))}
           </div>
-        </>
-      )}
 
-      {result && <div className="result-display">{result}</div>}
-      {leftSpecs && rightSpecs && (
-        <div className="verdict-display">
-          {getUpgradeVerdict(leftSpecs, rightSpecs)}
-        </div>
+          {result && <div className="result-display">{result}</div>}
+
+          <div className="verdict-display">
+            {getUpgradeVerdict(leftSpecs, rightSpecs)}
+          </div>
+        </>
       )}
     </div>
   );
