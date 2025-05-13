@@ -163,23 +163,26 @@ select:focus {
 }
 
 .spec-details {
-  max-height: 0;
   overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+  max-height: 0;
   opacity: 0;
-  transition: all 0.4s ease;
 }
 .spec-details.open {
-  max-height: 500px;
+  max-height: 1000px; /* Large enough for most cases */
   opacity: 1;
   margin-top: 12px;
 }
 .spec-details ul {
+  padding: 0;
+  margin: 0;
   list-style: none;
-  padding-left: 0;
   font-size: 0.9rem;
+  line-height: 1.4;
 }
 .spec-details li {
   margin-bottom: 8px;
+  word-break: break-word;
 }
 
 .dropdown-group {
