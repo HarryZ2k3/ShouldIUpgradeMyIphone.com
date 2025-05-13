@@ -150,6 +150,7 @@ select:focus {
   font-weight: 500;
 }
 
+/* Expand toggle */
 .expand-toggle {
   margin-top: 10px;
   font-size: 0.9rem;
@@ -162,17 +163,35 @@ select:focus {
   color: #404ae4;
 }
 
+/* Expandable spec details */
 .spec-details {
   overflow: hidden;
   transition: max-height 0.4s ease, opacity 0.4s ease;
   max-height: 0;
   opacity: 0;
 }
+
 .spec-details.open {
-  max-height: 1000px; /* Large enough for most cases */
+  max-height: 240px;
   opacity: 1;
   margin-top: 12px;
+  overflow-y: auto;
+  padding-right: 8px;
+
+  /* Hide scrollbars by default */
+  scrollbar-width: none; /* Firefox */
 }
+.spec-details.open::-webkit-scrollbar {
+  width: 6px;
+  display: none; /* Chrome/Safari hidden by default */
+}
+.spec-details.open:hover::-webkit-scrollbar {
+  display: block;
+}
+.spec-details.open:hover {
+  scrollbar-width: thin; /* Firefox shows thin scrollbar on hover */
+}
+
 .spec-details ul {
   padding: 0;
   margin: 0;
@@ -180,6 +199,7 @@ select:focus {
   font-size: 0.9rem;
   line-height: 1.4;
 }
+
 .spec-details li {
   margin-bottom: 8px;
   word-break: break-word;
