@@ -10,6 +10,15 @@ function App() {
   const [leftSpecs, setLeftSpecs] = useState(null);
   const [rightSpecs, setRightSpecs] = useState(null);
   const [result, setResult] = useState('');
+  const [expanded, setExpanded] = useState([false, false]);
+
+  const toggleSpecExpand = (idx) => {
+    setExpanded((prev) => {
+      const copy = [...prev];
+      copy[idx] = !copy[idx];
+      return copy;
+    });
+  };
 
   const getModelYearIndex = (name) => {
     const order = [
@@ -35,8 +44,8 @@ function App() {
     if (leftIndex === -1 || rightIndex === -1) return '';
 
     const newerIsLeft = leftIndex > rightIndex;
-
     let betterSide = null;
+
     if (["RAM (GB)", "Battery Life (hrs)"].includes(key)) {
       const l = parseFloat(leftVal), r = parseFloat(rightVal);
       if (isNaN(l) || isNaN(r)) return '';
@@ -57,6 +66,36 @@ function App() {
     if ((betterSide === "left" && isLeft && !isNewer) || (betterSide === "right" && !isLeft && isNewer)) return 'worse';
 
     return '';
+  };
+
+  const getUpgradeVerdict = (left, right) => {
+  if (!left || !right) return '';
+  const compareFields = [
+    "RAM (GB)", "Battery Life (hrs)", "Rear Camera Setup", "Display Size (inches)", "Weight (g)"
+  ];
+  let score = 0;
+  compareFields.forEach((key) => {
+    const a = parseFloat(right[key]);
+    const b = parseFloat(left[key]);
+    if (!isNaN(a) && !isNaN(b)) {
+      if (key === "Weight (g)") {
+        if (a < b) score++; // Lighter is better
+      } else {
+        if (a > b) score++; // Higher value is better
+      }
+    } else {
+      // Fallback: try counting camera lenses
+      if (key === "Rear Camera Setup") {
+        const c1 = (left[key]?.match(/\d+/g) || []).length;
+        const c2 = (right[key]?.match(/\d+/g) || []).length;
+        if (c2 > c1) score++;
+      }
+    }
+  });
+
+  if (score >= 3) return "✅ Upgrade Recommended";
+  if (score === 1 || score === 2) return "⚖️ Minimal Difference";
+  return "❌ Downgrade or Not Worth It";
   };
 
   const getImagePath = (modelName) => {
@@ -110,17 +149,24 @@ function App() {
 
   return (
     <div className="App">
-      <h2><b>Iphone Comparer</b></h2>
-      <div className="compare-container">
-        <select value={leftModel} onChange={e => setLeftModel(e.target.value)}>
-          {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
-        </select>
-        <button id="BtnCompare" onClick={handleCompare}>Compare</button>
-        <select value={rightModel} onChange={e => setRightModel(e.target.value)}>
-          {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
-        </select>
-      </div>
+      <h2><b>Should I Upgrade My iPhone</b></h2>
+          <div className="compare-container">
+            <div className="dropdown-group">
+              <label htmlFor="selectLeft">My Current iPhone</label>
+              <select id="selectLeft" value={leftModel} onChange={e => setLeftModel(e.target.value)}>
+                {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+              </select>
+            </div>
 
+            <button id="BtnCompare" onClick={handleCompare}>Compare</button>
+
+            <div className="dropdown-group">
+              <label htmlFor="selectRight">iPhone I’m Considering</label>
+              <select id="selectRight" value={rightModel} onChange={e => setRightModel(e.target.value)}>
+                {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+              </select>
+            </div>
+          </div>
       {leftSpecs && rightSpecs && (
         <>
           <div className="image-compare-wrapper">
@@ -135,14 +181,34 @@ function App() {
                 <h3>{specs["Model Name"]}</h3>
                 <ul>
                   {Object.entries(specs).map(([key, value]) =>
-                    !["_id", "__v", "name", "Model Name"].includes(key) &&
-                    !key.toLowerCase().startsWith("field") ? (
+                    [
+                      "RAM (GB)", "Processor", "Battery Life (hrs)", "Rear Camera Setup",
+                      "Storage options", "Display Size (inches)", "Weight (g)", "Price (USD)"
+                    ].includes(key) ? (
                       <li key={key} className={getHighlightClass(key, value, leftSpecs, rightSpecs, idx === 0)}>
                         <strong>{key}:</strong> {value}
                       </li>
                     ) : null
                   )}
                 </ul>
+
+                <div className="expand-toggle" onClick={() => toggleSpecExpand(idx)}>
+                  {expanded[idx] ? "▲ Hide full specs" : "▼ Show more details"}
+                </div>
+
+                <div className={`spec-details ${expanded[idx] ? 'open' : ''}`}>
+                  <ul>
+                    {Object.entries(specs).map(([key, value]) =>
+                      ![
+                        "_id", "__v", "name", "Model Name", "RAM (GB)", "Processor",
+                        "Battery Life (hrs)", "Rear Camera Setup", "Storage options",
+                        "Display Size (inches)", "Weight (g)", "Price (USD)"
+                      ].includes(key) && !key.toLowerCase().startsWith("field") ? (
+                        <li key={key}><strong>{key}:</strong> {value}</li>
+                      ) : null
+                    )}
+                  </ul>
+                </div>
               </div>
             ))}
           </div>
@@ -150,6 +216,11 @@ function App() {
       )}
 
       {result && <div className="result-display">{result}</div>}
+      {leftSpecs && rightSpecs && (
+        <div className="verdict-display">
+          {getUpgradeVerdict(leftSpecs, rightSpecs)}
+        </div>
+      )}
     </div>
   );
 }
