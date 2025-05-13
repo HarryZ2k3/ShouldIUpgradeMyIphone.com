@@ -149,3 +149,60 @@ select:focus {
   font-size: 1.1rem;
   font-weight: 500;
 }
+
+.expand-toggle {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #5c67f2;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+.expand-toggle:hover {
+  color: #404ae4;
+}
+
+.spec-details {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+.spec-details.open {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: 12px;
+}
+.spec-details ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.9rem;
+}
+.spec-details li {
+  margin-bottom: 8px;
+}
+
+.dropdown-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  gap: 4px;
+}
+.dropdown-group label {
+  font-weight: 500;
+  margin-bottom: 2px;
+  color: #444;
+}
+
+.verdict-display {
+  margin-top: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e1e1e;
+  background: #f8f8ff;
+  border-radius: 8px;
+  padding: 1rem;
+  display: inline-block;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
