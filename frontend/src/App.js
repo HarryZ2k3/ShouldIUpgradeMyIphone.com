@@ -9,14 +9,92 @@ function App() {
   const [rightModel, setRightModel] = useState('');
   const [leftSpecs, setLeftSpecs] = useState(null);
   const [rightSpecs, setRightSpecs] = useState(null);
+  const [result, setResult] = useState('');
   const [expanded, setExpanded] = useState([false, false]);
 
   const toggleSpecExpand = (idx) => {
-    setExpanded(prev => {
+    setExpanded((prev) => {
       const copy = [...prev];
       copy[idx] = !copy[idx];
       return copy;
     });
+  };
+
+  const getModelYearIndex = (name) => {
+    const order = [
+      "iPhone SE (2nd generation)", "iPhone SE (3rd generation)", "iPhone XR",
+      "iPhone 11", "iPhone 11 Pro", "iPhone 11 Pro Max", "iPhone 12", "iPhone 12 mini",
+      "iPhone 12 Pro", "iPhone 12 Pro Max", "iPhone 13", "iPhone 13 mini", "iPhone 13 Pro",
+      "iPhone 13 Pro Max", "iPhone 14", "iPhone 14 Plus", "iPhone 14 Pro", "iPhone 14 Pro Max",
+      "iPhone 15", "iPhone 15 Plus", "iPhone 15 Pro", "iPhone 15 Pro Max", "iPhone 16",
+      "iPhone 16 Plus", "iPhone 16 Pro", "iPhone 16 Pro Max"
+    ];
+    return order.indexOf(name);
+  };
+
+  const getHighlightClass = (key, value, left, right, isLeft) => {
+    const fieldsToCompare = ["RAM (GB)", "Battery Life (hrs)", "Storage options", "Rear Camera Setup"];
+    if (!fieldsToCompare.includes(key)) return '';
+
+    const leftVal = left[key], rightVal = right[key];
+    if (!leftVal || !rightVal) return '';
+
+    const leftIndex = getModelYearIndex(left["Model Name"]);
+    const rightIndex = getModelYearIndex(right["Model Name"]);
+    if (leftIndex === -1 || rightIndex === -1) return '';
+
+    const newerIsLeft = leftIndex > rightIndex;
+    let betterSide = null;
+
+    if (["RAM (GB)", "Battery Life (hrs)"].includes(key)) {
+      const l = parseFloat(leftVal), r = parseFloat(rightVal);
+      if (isNaN(l) || isNaN(r)) return '';
+      betterSide = l > r ? "left" : r > l ? "right" : null;
+    } else if (key === "Storage options") {
+      const l = (leftVal.match(/\d+GB/g) || []).length;
+      const r = (rightVal.match(/\d+GB/g) || []).length;
+      betterSide = l > r ? "left" : r > l ? "right" : null;
+    } else if (key === "Rear Camera Setup") {
+      const l = (leftVal.match(/\d+/g) || []).length;
+      const r = (rightVal.match(/\d+/g) || []).length;
+      betterSide = l > r ? "left" : r > l ? "right" : null;
+    }
+
+    const isNewer = isLeft === newerIsLeft;
+    if (!betterSide) return '';
+    if ((betterSide === "left" && isLeft && isNewer) || (betterSide === "right" && !isLeft && !isNewer)) return 'better';
+    if ((betterSide === "left" && isLeft && !isNewer) || (betterSide === "right" && !isLeft && isNewer)) return 'worse';
+
+    return '';
+  };
+
+  const getUpgradeVerdict = (left, right) => {
+    if (!left || !right) return '';
+
+    const compareFields = [
+      "RAM (GB)", "Battery Life (hrs)", "Rear Camera Setup", "Display Size (inches)", "Weight (g)"
+    ];
+
+    let score = 0;
+    compareFields.forEach((key) => {
+      const a = parseFloat(right[key]);
+      const b = parseFloat(left[key]);
+      if (!isNaN(a) && !isNaN(b)) {
+        if (key === "Weight (g)") {
+          if (a < b) score++; // Lighter is better
+        } else {
+          if (a > b) score++; // Bigger/higher is better
+        }
+      } else if (key === "Rear Camera Setup") {
+        const c1 = (left[key]?.match(/\d+/g) || []).length;
+        const c2 = (right[key]?.match(/\d+/g) || []).length;
+        if (c2 > c1) score++;
+      }
+    });
+
+    if (score >= 3) return "✅ Upgrade Recommended";
+    if (score === 1 || score === 2) return "⚖️ Minimal Difference";
+    return "❌ Downgrade or Not Worth It";
   };
 
   const getImagePath = (modelName) => {
@@ -33,55 +111,25 @@ function App() {
     return map[normalized] ? `/images/${map[normalized]}` : null;
   };
 
-  const getHighlightClass = (key, left, right, isLeft) => {
-    const valueA = left[key];
-    const valueB = right[key];
-    if (valueA == null || valueB == null) return '';
-
-    let isBetter = false;
-
-    if (typeof valueA === 'number' && typeof valueB === 'number') {
-      isBetter = valueA > valueB;
-    } else if (typeof valueA === 'string') {
-      isBetter = valueA.length > valueB.length;
-    }
-
-    if (isBetter && isLeft) return 'better';
-    if (!isBetter && !isLeft) return 'better';
-    if (!isBetter && isLeft) return 'worse';
-    if (isBetter && !isLeft) return 'worse';
-    return '';
-  };
-
-  const getUpgradeVerdict = (left, right) => {
-    if (!left || !right) return '';
-    let score = 0;
-
-    if (right.specs?.ramGB > left.specs?.ramGB) score++;
-    if ((right.specs?.camera?.rear?.match(/\d+/g) || []).length > (left.specs?.camera?.rear?.match(/\d+/g) || []).length) score++;
-    if (right.specs?.battery?.lifeHours > left.specs?.battery?.lifeHours) score++;
-    if (right.specs?.display?.sizeInches > left.specs?.display?.sizeInches) score++;
-    if (right.specs?.weightGrams < left.specs?.weightGrams) score++;
-
-    if (score >= 3) return "✅ Upgrade Recommended";
-    if (score === 1 || score === 2) return "⚖️ Minimal Difference";
-    return "❌ Downgrade or Not Worth It";
-  };
-
   useEffect(() => {
     fetch(`${API_BASE}/api/iphones`)
       .then(res => res.json())
       .then(data => {
-        const names = data.map(item => item.modelName);
+        const names = data.map(item => item["Model Name"]);
         setOptions(names);
-        setLeftModel(names[0]);
-        setRightModel(names[1] || names[0]);
+        if (names.length > 0) {
+          setLeftModel(names[0]);
+          setRightModel(names[1] || names[0]);
+        }
       })
       .catch(err => console.error("Error fetching models:", err));
   }, []);
 
   const handleCompare = async () => {
-    if (!leftModel || !rightModel || leftModel === rightModel) return;
+    if (leftModel === rightModel) {
+      setResult(`You selected the same model: "${leftModel}". Try picking two different models.`);
+      return;
+    }
 
     try {
       const [leftRes, rightRes] = await Promise.all([
@@ -91,24 +139,11 @@ function App() {
       const [leftData, rightData] = await Promise.all([leftRes.json(), rightRes.json()]);
       setLeftSpecs(leftData);
       setRightSpecs(rightData);
+      setResult(`Comparing "${leftModel}" vs "${rightModel}"`);
     } catch (err) {
-      console.error("Compare failed:", err);
+      console.error('Error comparing phones:', err);
+      setResult('Failed to fetch comparison data.');
     }
-  };
-
-  const primaryFields = [
-    { key: "ramGB", label: "RAM (GB)" },
-    { key: "processor", label: "Processor" },
-    { key: "battery.lifeHours", label: "Battery Life (hrs)" },
-    { key: "camera.rear", label: "Rear Camera" },
-    { key: "storageOptions", label: "Storage Options" },
-    { key: "display.sizeInches", label: "Display Size (inches)" },
-    { key: "weightGrams", label: "Weight (g)" },
-    { key: "priceUSD", label: "Price (USD)" }
-  ];
-
-  const getFieldValue = (specs, path) => {
-    return path.split('.').reduce((obj, part) => obj?.[part], specs?.specs || specs);
   };
 
   return (
@@ -117,8 +152,8 @@ function App() {
 
       <div className="compare-container">
         <div className="dropdown-group">
-          <label>My Current iPhone</label>
-          <select value={leftModel} onChange={e => setLeftModel(e.target.value)}>
+          <label htmlFor="selectLeft">My Current iPhone</label>
+          <select id="selectLeft" value={leftModel} onChange={e => setLeftModel(e.target.value)}>
             {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
           </select>
         </div>
@@ -126,8 +161,8 @@ function App() {
         <button id="BtnCompare" onClick={handleCompare}>Compare</button>
 
         <div className="dropdown-group">
-          <label>iPhone I'm Considering</label>
-          <select value={rightModel} onChange={e => setRightModel(e.target.value)}>
+          <label htmlFor="selectRight">iPhone I'm Considering</label>
+          <select id="selectRight" value={rightModel} onChange={e => setRightModel(e.target.value)}>
             {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
           </select>
         </div>
@@ -136,25 +171,26 @@ function App() {
       {leftSpecs && rightSpecs && (
         <>
           <div className="image-compare-wrapper">
-            <img src={getImagePath(leftSpecs.modelName)} alt={leftSpecs.modelName} className="compare-image" />
+            <img src={getImagePath(leftSpecs["Model Name"])} alt={leftSpecs["Model Name"]} className="compare-image" />
             <div className="vertical-line" />
-            <img src={getImagePath(rightSpecs.modelName)} alt={rightSpecs.modelName} className="compare-image" />
+            <img src={getImagePath(rightSpecs["Model Name"])} alt={rightSpecs["Model Name"]} className="compare-image" />
           </div>
 
           <div className="specs-grid">
             {[leftSpecs, rightSpecs].map((specs, idx) => (
               <div className="spec-card" key={idx}>
-                <h3>{specs.modelName}</h3>
+                <h3>{specs["Model Name"]}</h3>
                 <ul>
-                  {primaryFields.map(({ key, label }) => {
-                    const value = getFieldValue(specs, key);
-                    const formatted = Array.isArray(value) ? value.join(', ') : value;
-                    return (
-                      <li key={key} className={getHighlightClass(key, leftSpecs.specs, rightSpecs.specs, idx === 0)}>
-                        <strong>{label}:</strong> {formatted}
+                  {Object.entries(specs).map(([key, value]) =>
+                    [
+                      "RAM (GB)", "Processor", "Battery Life (hrs)", "Rear Camera Setup",
+                      "Storage options", "Display Size (inches)", "Weight (g)", "Price (USD)"
+                    ].includes(key) ? (
+                      <li key={key} className={getHighlightClass(key, value, leftSpecs, rightSpecs, idx === 0)}>
+                        <strong>{key}:</strong> {value}
                       </li>
-                    );
-                  })}
+                    ) : null
+                  )}
                 </ul>
 
                 <div className="expand-toggle" onClick={() => toggleSpecExpand(idx)}>
@@ -163,9 +199,13 @@ function App() {
 
                 <div className={`spec-details ${expanded[idx] ? 'open' : ''}`}>
                   <ul>
-                    {Object.entries(specs.specs || {}).map(([key, value]) =>
-                      !primaryFields.some(f => f.key.includes(key)) ? (
-                        <li key={key}><strong>{key}:</strong> {Array.isArray(value) ? value.join(', ') : value}</li>
+                    {Object.entries(specs).map(([key, value]) =>
+                      ![
+                        "_id", "__v", "name", "Model Name", "RAM (GB)", "Processor",
+                        "Battery Life (hrs)", "Rear Camera Setup", "Storage options",
+                        "Display Size (inches)", "Weight (g)", "Price (USD)"
+                      ].includes(key) && !key.toLowerCase().startsWith("field") ? (
+                        <li key={key}><strong>{key}:</strong> {value}</li>
                       ) : null
                     )}
                   </ul>
@@ -174,7 +214,11 @@ function App() {
             ))}
           </div>
 
-          <div className="verdict-display">{getUpgradeVerdict(leftSpecs, rightSpecs)}</div>
+          {result && <div className="result-display">{result}</div>}
+
+          <div className="verdict-display">
+            {getUpgradeVerdict(leftSpecs, rightSpecs)}
+          </div>
         </>
       )}
     </div>
