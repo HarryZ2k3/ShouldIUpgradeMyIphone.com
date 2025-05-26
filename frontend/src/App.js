@@ -7,7 +7,8 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link
+  Link,
+  useNavigate
 } from 'react-router-dom';
 
 import LoginPage from './LoginPage';
@@ -51,7 +52,7 @@ function getHighlightClass(key, left, right, isLeft) {
     const l = (lval.match(/\d+GB/g) || []).length;
     const r = (rval.match(/\d+GB/g) || []).length;
     betterSide = l > r ? "left" : r > l ? "right" : null;
-  } else { // Rear Camera
+  } else { // Rear Camera Setup
     const l = (lval.match(/\d+/g) || []).length;
     const r = (rval.match(/\d+/g) || []).length;
     betterSide = l > r ? "left" : r > l ? "right" : null;
@@ -118,12 +119,11 @@ function HomePage() {
   const [result, setResult]         = useState('');
   const [expanded, setExpanded]     = useState([false, false]);
 
-  // load models
   useEffect(() => {
     const savedL = Cookies.get('leftModel');
     const savedR = Cookies.get('rightModel');
     fetch(`${API_BASE}/api/iphones`)
-      .then(r => r.json())
+      .then(res => res.json())
       .then(data => {
         const names = data.map(i => i['Model Name']);
         setOptions(names);
@@ -135,7 +135,6 @@ function HomePage() {
       .catch(console.error);
   }, []);
 
-  // compare action
   const handleCompare = async () => {
     if (leftModel === rightModel) {
       setResult(`You selected the same model: "${leftModel}".`);
@@ -156,7 +155,6 @@ function HomePage() {
     }
   };
 
-  // toggle extra specs
   const toggleSpecExpand = idx => {
     setExpanded(prev => {
       const copy = [...prev];
@@ -180,7 +178,9 @@ function HomePage() {
               Cookies.set('leftModel', e.target.value, { expires: 7 });
             }}
           >
-            {options.map((m, i) => <option key={i} value={m}>{m}</option>)}
+            {options.map((m, i) => (
+              <option key={i} value={m}>{m}</option>
+            ))}
           </select>
         </div>
 
@@ -198,14 +198,15 @@ function HomePage() {
               Cookies.set('rightModel', e.target.value, { expires: 7 });
             }}
           >
-            {options.map((m, i) => <option key={i} value={m}>{m}</option>)}
+            {options.map((m, i) => (
+              <option key={i} value={m}>{m}</option>
+            ))}
           </select>
         </div>
       </div>
 
       {leftSpecs && rightSpecs && (
         <>
-          {/* images */}
           <div className="image-compare-wrapper">
             <img
               src={getImagePath(leftSpecs["Model Name"])}
@@ -220,7 +221,6 @@ function HomePage() {
             />
           </div>
 
-          {/* specs grid */}
           <div className="specs-grid">
             {[leftSpecs, rightSpecs].map((s, idx) => (
               <div className="spec-card" key={idx}>
@@ -262,23 +262,44 @@ function HomePage() {
           </div>
 
           {result && <div className="result-display">{result}</div>}
-          <div className="verdict-display">{getUpgradeVerdict(leftSpecs, rightSpecs)}</div>
+          <div className="verdict-display">
+            {getUpgradeVerdict(leftSpecs, rightSpecs)}
+          </div>
         </>
       )}
     </div>
   );
 }
 
-// — Main App: routing & theme —
-function App() {
+// — AppContent: handles auth, theme, logout & routing —
+function AppContent() {
   const [theme, setTheme] = useState(() => Cookies.get('theme') || 'light');
+  const [user, setUser]   = useState(null);
+  const navigate          = useNavigate();
 
+  // Apply theme
   useEffect(() => {
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-sakura');
+    document.body.classList.remove('theme-light','theme-dark','theme-sakura');
     document.body.classList.add(`theme-${theme}`);
     Cookies.set('theme', theme, { expires: 365 });
   }, [theme]);
 
+  // Fetch current user
+  useEffect(() => {
+    fetch(`${API_BASE}/auth/me`, { credentials: 'include' })
+      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(u => setUser(u))
+      .catch(() => setUser(null));
+  }, []);
+
+  // Logout handler
+  const handleLogout = async () => {
+    await fetch(`${API_BASE}/auth/logout`, { credentials: 'include' });
+    setUser(null);
+    navigate('/login');
+  };
+
+  // Cycle theme
   const cycleTheme = () => {
     setTheme(prev =>
       prev === 'light' ? 'dark'
@@ -288,36 +309,52 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App">
-        <header className="site-header">
-          <Link className="btn btn-ghost" to="/">Home</Link>
-          <Link className="btn btn-ghost" to="/login">Login</Link>
-          <Link className="btn btn-ghost" to="/register">Register</Link>
-          <Link className="btn btn-ghost" to="/profile">Profile</Link>
-          <button
-            className="btn btn-primary theme-toggle-btn"
-            onClick={cycleTheme}
-          >
-            Switch to {theme === 'light'
-              ? 'Dark'
-              : theme === 'dark'
-              ? 'Sakura'
-              : 'Light'} Mode
-          </button>
-        </header>
+    <div className="App">
+      <header className="site-header">
+        <Link className="btn btn-ghost" to="/">Home</Link>
 
-        <main>
-          <Routes>
-            <Route path="/"         element={<HomePage />} />
-            <Route path="/login"    element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/profile"  element={<ProfilePage />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+        {user ? (
+          <>
+            <span className="header-user">Logged in as {user.email}</span>
+            <button className="btn btn-ghost" onClick={handleLogout}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link className="btn btn-ghost" to="/login">Login</Link>
+            <Link className="btn btn-ghost" to="/register">Register</Link>
+          </>
+        )}
+
+        <Link className="btn btn-ghost" to="/profile">Profile</Link>
+
+        <button className="btn btn-primary theme-toggle-btn" onClick={cycleTheme}>
+          Switch to {theme === 'light'
+            ? 'Dark'
+            : theme === 'dark'
+            ? 'Sakura'
+            : 'Light'} Mode
+        </button>
+      </header>
+
+      <main>
+        <Routes>
+          <Route path="/"         element={<HomePage />} />
+          <Route path="/login"    element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile"  element={<ProfilePage />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
-export default App;
+// — App: wraps everything in the Router —
+export default function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
