@@ -215,7 +215,7 @@ button[type="submit"] {
 /* Primary button */
 .btn-primary {
   background: var(--color-primary);
-  color: var(--btn-text-primary);
+  color: #fff;
 
 .btn-primary:hover {
   background: var(--color-primary-hover);
