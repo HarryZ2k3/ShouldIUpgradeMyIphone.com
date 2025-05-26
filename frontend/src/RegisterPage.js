@@ -40,10 +40,7 @@ export default function RegisterPage() {
 
         {error && <p className="error">{error}</p>}
 
-        <button
-          className="social-btn google-btn"
-          onClick={handleGoogle}
-        >
+        <button className="btn btn-google" onClick={handleGoogle}>
           Continue with Google
         </button>
 
@@ -71,7 +68,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <button type="submit">Register with Email</button>
+          <button type="submit" className="btn btn-primary">Register with Email</button>
         </form>
       </div>
     </div>
