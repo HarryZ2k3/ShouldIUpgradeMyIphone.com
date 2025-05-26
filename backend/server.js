@@ -4,7 +4,18 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const Iphone = require('./models/Iphone');
+const authRoutes = require('./routes/auth');
+app.use('/auth', authRoutes);
 const iphoneRoutes = require('./routes/iphoneRoutes');
+//google account
+require('dotenv').config();
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const bcrypt = require('bcrypt');
+const User = require('./models/User');
 
 dotenv.config();
 
@@ -44,3 +55,59 @@ app.use('/api/iphones', iphoneRoutes);
 app.listen(PORT, () => {
   console.log(`🚀 Server started at http://localhost:${PORT}`);
 });
+
+// Session setup
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: new MongoStore({ mongooseConnection: mongoose.connection })
+}));
+
+// Passport setup
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser((id, done) =>
+  User.findById(id)
+      .then(u => done(null, u))
+      .catch(done)
+);
+
+// Local strategy for login
+passport.use(new LocalStrategy({ usernameField: 'email' },
+  async (email, password, done) => {
+    try {
+      const user = await User.findOne({ email });
+      if (!user) return done(null, false, { message: 'No user' });
+      const ok = await bcrypt.compare(password, user.passwordHash);
+      if (!ok) return done(null, false, { message: 'Wrong password' });
+      return done(null, user);
+    } catch (e) {
+      return done(e);
+    }
+  }
+));
+
+// Google strategy for login
+passport.use(new GoogleStrategy({
+    clientID:     process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL:  `${process.env.FRONTEND_URL}/auth/google/callback`
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ googleId: profile.id });
+      if (!user) {
+        user = await User.create({
+          googleId: profile.id,
+          email:    profile.emails[0].value
+        });
+      }
+      done(null, user);
+    } catch (e) {
+      done(e);
+    }
+  }
+));
