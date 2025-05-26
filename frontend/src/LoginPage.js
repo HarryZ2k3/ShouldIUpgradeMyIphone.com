@@ -1,6 +1,7 @@
-// src/LoginPage.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate }      from 'react-router-dom';
+
+const API_BASE = process.env.REACT_APP_API_URL;
 
 export default function LoginPage() {
   const [email, setEmail]       = useState('');
@@ -8,12 +9,11 @@ export default function LoginPage() {
   const [error, setError]       = useState('');
   const navigate                = useNavigate();
 
-  // Email/password login
   const handleEmailLogin = async e => {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('/auth/login', {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -21,7 +21,7 @@ export default function LoginPage() {
       });
       if (!res.ok) {
         const body = await res.json();
-        throw new Error(body.message || 'Login failed');
+        throw new Error(body.error || 'Login failed');
       }
       navigate('/profile');
     } catch (err) {
@@ -29,19 +29,20 @@ export default function LoginPage() {
     }
   };
 
-  // Google OAuth
   const handleGoogle = () => {
-    window.location.href = '/auth/google';
+    window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h2>Welcome Back</h2>
-
         {error && <p className="error">{error}</p>}
 
-        <button className="btn btn-google" onClick={handleGoogle}>
+        <button
+          className="btn btn-google"
+          onClick={handleGoogle}
+        >
           Continue with Google
         </button>
 
@@ -69,9 +70,11 @@ export default function LoginPage() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary">Log In</button>
+          <button type="submit" className="btn btn-primary">
+            Log In
+          </button>
         </form>
       </div>
     </div>
-);
+  );
 }

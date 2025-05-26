@@ -1,6 +1,7 @@
-// src/RegisterPage.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate }      from 'react-router-dom';
+
+const API_BASE = process.env.REACT_APP_API_URL;
 
 export default function RegisterPage() {
   const [email, setEmail]       = useState('');
@@ -12,7 +13,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('/auth/register', {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -29,17 +30,19 @@ export default function RegisterPage() {
   };
 
   const handleGoogle = () => {
-    window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
+  window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h2>Create an account</h2>
-
         {error && <p className="error">{error}</p>}
 
-        <button className="btn btn-google" onClick={handleGoogle}>
+        <button
+          className="btn btn-google"
+          onClick={handleGoogle}
+        >
           Continue with Google
         </button>
 
@@ -67,7 +70,9 @@ export default function RegisterPage() {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary">Register with Email</button>
+          <button type="submit" className="btn btn-primary">
+            Register with Email
+          </button>
         </form>
       </div>
     </div>
