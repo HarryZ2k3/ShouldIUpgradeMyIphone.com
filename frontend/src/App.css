@@ -57,6 +57,7 @@ body.theme-dark,
 body.theme-sakura {
   background: var(--bg);
   color: var(--fg);
+  --btn-text-primary: #333;
 }
 
 /* — Main container — */
@@ -187,6 +188,7 @@ button[type="submit"] {
   --btn-padding: 0.6rem 1.2rem;
   --btn-font: 1rem;
   --btn-transition: background 0.2s ease, box-shadow 0.2s ease;
+  --btn-text-primary: #fff;
   
   /* primary color (indigo) */
   --color-primary: #6366F1;
@@ -213,7 +215,7 @@ button[type="submit"] {
 /* Primary button */
 .btn-primary {
   background: var(--color-primary);
-  color: var(--btn-text);
+  color: var(--btn-text-primary);
 
 .btn-primary:hover {
   background: var(--color-primary-hover);
@@ -242,11 +244,13 @@ button[type="submit"] {
 
 /* Special: Google social button */
 .btn-google {
-  background: #4285F4;
-  color: #fff;
+  background: #fff;
+  color: var(--btn-text-google, #444);
 }
 .btn-google:hover {
   background: #357ae8;
 }
-
+body.theme-sakura .btn-google {
+  --btn-text-google: #222;
+}
 }
