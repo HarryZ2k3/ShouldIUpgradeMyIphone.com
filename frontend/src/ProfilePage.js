@@ -1,6 +1,8 @@
 // src/ProfilePage.js
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+const API_BASE = process.env.REACT_APP_API_URL;  // e.g. "https://api.your-domain.com"
 
 export default function ProfilePage() {
   const [user, setUser]       = useState(null);
@@ -11,7 +13,7 @@ export default function ProfilePage() {
 
   // 1) Load user info
   useEffect(() => {
-    fetch('/auth/me', { credentials: 'include' })
+    fetch(`${API_BASE}/auth/me`, { credentials: 'include' })
       .then(res => {
         if (res.status === 401) throw new Error('Not authenticated');
         return res.json();
@@ -25,7 +27,7 @@ export default function ProfilePage() {
       });
 
     // Fetch all iPhone models
-    fetch(`${process.env.REACT_APP_API_URL}/api/iphones`)
+    fetch(`${API_BASE}/api/iphones`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setOptions(data.map(i => i["Model Name"])))
       .catch(err => console.error(err));
@@ -36,20 +38,23 @@ export default function ProfilePage() {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('/auth/me/model', {
+      const res = await fetch(`${API_BASE}/auth/me/model`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ model })
       });
-      if (!res.ok) throw new Error('Save failed');
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || 'Save failed');
+      }
       navigate('/'); // back to home
     } catch (err) {
       setError(err.message);
     }
   };
 
-  if (!user) return null; // or a loading spinner
+  if (!user) return null; // or a spinner
 
   return (
     <div className="auth-container">
@@ -65,7 +70,7 @@ export default function ProfilePage() {
               required
             >
               <option value="">— Select model —</option>
-              {options.map((m,i) => (
+              {options.map((m, i) => (
                 <option key={i} value={m}>{m}</option>
               ))}
             </select>
