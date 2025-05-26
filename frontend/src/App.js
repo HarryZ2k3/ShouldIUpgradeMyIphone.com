@@ -1,9 +1,22 @@
+// File: src/App.js
 import './App.css';
 import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 
 const API_BASE = process.env.REACT_APP_API_URL;
 
 function App() {
+  // --- THEME SETUP ---
+  const [theme, setTheme] = useState(() => Cookies.get('theme') || 'light');
+
+  // 2) Apply theme class to <body> and persist to cookie
+  useEffect(() => {
+    // remove every possible theme class before applying the new one
+    document.body.classList.remove('theme-light', 'theme-dark', 'theme-sakura');
+    document.body.classList.add(`theme-${theme}`);
+    Cookies.set('theme', theme, { expires: 365 });
+  }, [theme]);
+
   const [options, setOptions] = useState([]);
   const [leftModel, setLeftModel] = useState('');
   const [rightModel, setRightModel] = useState('');
@@ -64,7 +77,6 @@ function App() {
     if (!betterSide) return '';
     if ((betterSide === "left" && isLeft && isNewer) || (betterSide === "right" && !isLeft && !isNewer)) return 'better';
     if ((betterSide === "left" && isLeft && !isNewer) || (betterSide === "right" && !isLeft && isNewer)) return 'worse';
-
     return '';
   };
 
@@ -112,14 +124,17 @@ function App() {
   };
 
   useEffect(() => {
+    const savedLeft = Cookies.get('leftModel');
+    const savedRight = Cookies.get('rightModel');
+
     fetch(`${API_BASE}/api/iphones`)
       .then(res => res.json())
       .then(data => {
         const names = data.map(item => item["Model Name"]);
         setOptions(names);
         if (names.length > 0) {
-          setLeftModel(names[0]);
-          setRightModel(names[1] || names[0]);
+          setLeftModel(savedLeft && names.includes(savedLeft) ? savedLeft : names[0]);
+          setRightModel(savedRight && names.includes(savedRight) ? savedRight : names[1] || names[0]);
         }
       })
       .catch(err => console.error("Error fetching models:", err));
@@ -148,13 +163,42 @@ function App() {
 
   return (
     <div className="App">
+      {/* Theme toggle button */}
+      <button
+        className="theme-toggle-btn"
+        onClick={() =>
+          setTheme(prev =>
+            prev === 'light'
+              ? 'dark'
+              : prev === 'dark'
+              ? 'sakura'
+              : 'light'
+          )
+        }
+      >
+        Switch to {theme === 'light'
+          ? 'Dark'
+          : theme === 'dark'
+          ? 'Sakura'
+          : 'Light'} Mode
+      </button>
+
       <h2><b>Should I Upgrade My iPhone</b></h2>
 
       <div className="compare-container">
         <div className="dropdown-group">
           <label htmlFor="selectLeft">My Current iPhone</label>
-          <select id="selectLeft" value={leftModel} onChange={e => setLeftModel(e.target.value)}>
-            {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+          <select
+            id="selectLeft"
+            value={leftModel}
+            onChange={e => {
+              setLeftModel(e.target.value);
+              Cookies.set('leftModel', e.target.value, { expires: 7 });
+            }}
+          >
+            {options.map((model, i) => (
+              <option key={i} value={model}>{model}</option>
+            ))}
           </select>
         </div>
 
@@ -162,8 +206,17 @@ function App() {
 
         <div className="dropdown-group">
           <label htmlFor="selectRight">iPhone I'm Considering</label>
-          <select id="selectRight" value={rightModel} onChange={e => setRightModel(e.target.value)}>
-            {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+          <select
+            id="selectRight"
+            value={rightModel}
+            onChange={e => {
+              setRightModel(e.target.value);
+              Cookies.set('rightModel', e.target.value, { expires: 7 });
+            }}
+          >
+            {options.map((model, i) => (
+              <option key={i} value={model}>{model}</option>
+            ))}
           </select>
         </div>
       </div>

@@ -1,6 +1,77 @@
-/* App.css: intentionally minimal or empty if not needed */
-
+/* — Header — */
 .App h2 {
   margin-top: 40px;
   font-size: 28px;
+  color: var(--fg);
+}
+
+/* — Base & default variables — */
+body {
+  /* fallback values */
+  --bg: #fff;
+  --fg: #111;
+  /* toggle button defaults */
+  --toggle-bg: #111;
+  --toggle-text: #fff;
+
+  background: var(--bg);
+  color: var(--fg);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* — Apply transitions to all App children for smooth fading — */
+.App,
+.App * {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* — Light theme — */
+body.theme-light {
+  --bg: #fff;
+  --fg: #111;
+  --toggle-bg: var(--fg);
+  --toggle-text: var(--bg);
+}
+
+/* — Dark theme — */
+body.theme-dark {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --toggle-bg: var(--fg);
+  --toggle-text: var(--bg);
+}
+
+/* — Sakura theme (your original pink-blue gradient) — */
+body.theme-sakura {
+  --bg: linear-gradient(to bottom right, #e8f0ff, #ffe9f0);
+  --fg: #333;
+  --toggle-bg: #333;
+  --toggle-text: #fff;
+}
+
+/* — Re-apply theme variables — */
+body.theme-light,
+body.theme-dark,
+body.theme-sakura {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* — Main container — */
+.App {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* — Theme toggle button — */
+.theme-toggle-btn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  background: var(--toggle-bg);
+  color: var(--toggle-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
