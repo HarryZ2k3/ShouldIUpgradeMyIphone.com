@@ -41,10 +41,7 @@ export default function LoginPage() {
 
         {error && <p className="error">{error}</p>}
 
-        <button
-          className="social-btn google-btn"
-          onClick={handleGoogle}
-        >
+        <button className="btn btn-google" onClick={handleGoogle}>
           Continue with Google
         </button>
 
@@ -72,7 +69,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <button type="submit">Log In</button>
+          <button type="submit" className="btn btn-primary">Log In</button>
         </form>
       </div>
     </div>
