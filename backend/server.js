@@ -1,19 +1,25 @@
-require('dotenv').config();
-const express       = require('express');
-const mongoose      = require('mongoose');
-const cors          = require('cors');
-const session       = require('express-session');
-const MongoStore    = require('connect-mongo');
-const passport      = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const bcrypt        = require('bcrypt');
+// File: backend/server.js
 
-const authRoutes    = require('./routes/auth');
-const iphoneRoutes  = require('./routes/iphoneRoutes');
-const User          = require('./models/User');
-app.set('trust proxy', 1);
+require('dotenv').config();
+const express         = require('express');
+const mongoose        = require('mongoose');
+const cors            = require('cors');
+const session         = require('express-session');
+const MongoStore      = require('connect-mongo');
+const passport        = require('passport');
+const LocalStrategy   = require('passport-local').Strategy;
+const GoogleStrategy  = require('passport-google-oauth20').Strategy;
+const bcrypt          = require('bcrypt');
+
+const authRoutes      = require('./routes/auth');
+const iphoneRoutes    = require('./routes/iphoneRoutes');
+const User            = require('./models/User');
+
+// — Create the Express app —
 const app = express();
+
+// — Trust proxy so secure cookies work behind Render’s load balancer —
+app.set('trust proxy', 1);
 
 // — Connect to MongoDB —
 mongoose.connect(process.env.MONGO_URI, {
@@ -43,10 +49,10 @@ app.use(session({
     secure: true,           // only send over HTTPS
     httpOnly: true,         // not accessible from JS
     sameSite: 'none',       // allow cross-site
-    maxAge: 1000 * 60 * 60 * 24 * 7  // e.g. 1 week
+    maxAge: 1000 * 60 * 60 * 24 * 7  // 1 week
   }
 }));
- 
+
 // — Passport setup —
 app.use(passport.initialize());
 app.use(passport.session());
@@ -63,9 +69,9 @@ passport.use(new LocalStrategy({ usernameField: 'email' },
   async (email, password, done) => {
     try {
       const user = await User.findOne({ email });
-      if (!user) return done(null, false, { message: 'No user' });
+      if (!user) return done(null, false, { message: 'No user found' });
       const ok = await bcrypt.compare(password, user.passwordHash);
-      if (!ok) return done(null, false, { message: 'Wrong password' });
+      if (!ok) return done(null, false, { message: 'Incorrect password' });
       return done(null, user);
     } catch (e) {
       return done(e);
@@ -96,16 +102,11 @@ passport.use(new GoogleStrategy({
 ));
 
 // — Routes —
-// Auth (login, logout, register, Google OAuth, me, update model)
 app.use('/auth', authRoutes);
-
-// iPhone data API
 app.use('/api/iphones', iphoneRoutes);
 
 // — Health check or root endpoint —
-app.get('/', (req, res) => {
-  res.send('Server is running');
-});
+app.get('/', (req, res) => res.send('Server is running'));
 
 // — Start server —
 const PORT = process.env.PORT || 5000;
