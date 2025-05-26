@@ -29,8 +29,7 @@ export default function RegisterPage() {
   };
 
   const handleGoogle = () => {
-    // Redirect browser to backend Google OAuth endpoint
-    window.location.href = '/auth/google';
+    window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
   };
 
   return (
