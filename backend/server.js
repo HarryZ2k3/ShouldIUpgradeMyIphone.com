@@ -12,7 +12,7 @@ const bcrypt        = require('bcrypt');
 const authRoutes    = require('./routes/auth');
 const iphoneRoutes  = require('./routes/iphoneRoutes');
 const User          = require('./models/User');
-
+app.set('trust proxy', 1);
 const app = express();
 
 // — Connect to MongoDB —
@@ -38,9 +38,15 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI
-  })
+  }),
+  cookie: {
+    secure: true,           // only send over HTTPS
+    httpOnly: true,         // not accessible from JS
+    sameSite: 'none',       // allow cross-site
+    maxAge: 1000 * 60 * 60 * 24 * 7  // e.g. 1 week
+  }
 }));
-
+ 
 // — Passport setup —
 app.use(passport.initialize());
 app.use(passport.session());
