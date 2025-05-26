@@ -8,6 +8,7 @@ import {
   Link
 } from 'react-router-dom';
 
+import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
 
 const API_BASE = process.env.REACT_APP_API_URL;
@@ -163,10 +164,14 @@ function App() {
         <header className="site-header">
           <Link to="/">Home</Link> |{' '}
           <Link to="/register">Register</Link>
+          <Link to="/">Home</Link> |{' '}
+          <Link to="/login">Login</Link> |{' '}
+          <Link to="/register">Register</Link>
         </header>
 
         <Routes>
           {/* Registration */}
+          <Route path="/login"    element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Main comparator */}
