@@ -1,5 +1,6 @@
 import './App.css';
 import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 
 const API_BASE = process.env.REACT_APP_API_URL;
 
@@ -112,14 +113,17 @@ function App() {
   };
 
   useEffect(() => {
+    const savedLeft = Cookies.get('leftModel');
+    const savedRight = Cookies.get('rightModel');
+
     fetch(`${API_BASE}/api/iphones`)
       .then(res => res.json())
       .then(data => {
         const names = data.map(item => item["Model Name"]);
         setOptions(names);
         if (names.length > 0) {
-          setLeftModel(names[0]);
-          setRightModel(names[1] || names[0]);
+          setLeftModel(savedLeft && names.includes(savedLeft) ? savedLeft : names[0]);
+          setRightModel(savedRight && names.includes(savedRight) ? savedRight : names[1] || names[0]);
         }
       })
       .catch(err => console.error("Error fetching models:", err));
@@ -153,8 +157,13 @@ function App() {
       <div className="compare-container">
         <div className="dropdown-group">
           <label htmlFor="selectLeft">My Current iPhone</label>
-          <select id="selectLeft" value={leftModel} onChange={e => setLeftModel(e.target.value)}>
-            {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+          <select id="selectLeft" value={leftModel} onChange={e => {
+            setLeftModel(e.target.value);
+            Cookies.set('leftModel', e.target.value, { expires: 7 });
+          }}>
+            {options.map((model, i) => (
+              <option key={i} value={model}>{model}</option>
+            ))}
           </select>
         </div>
 
@@ -162,8 +171,13 @@ function App() {
 
         <div className="dropdown-group">
           <label htmlFor="selectRight">iPhone I'm Considering</label>
-          <select id="selectRight" value={rightModel} onChange={e => setRightModel(e.target.value)}>
-            {options.map((model, i) => <option key={i} value={model}>{model}</option>)}
+          <select id="selectRight" value={rightModel} onChange={e => {
+            setRightModel(e.target.value);
+            Cookies.set('rightModel', e.target.value, { expires: 7 });
+          }}>
+            {options.map((model, i) => (
+              <option key={i} value={model}>{model}</option>
+            ))}
           </select>
         </div>
       </div>
