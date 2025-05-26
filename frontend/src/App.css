@@ -58,6 +58,7 @@ body.theme-sakura {
   background: var(--bg);
   color: var(--fg);
   --btn-text-primary: #333;
+  --color-primary: #a04b7a;
 }
 
 /* — Main container — */
@@ -244,13 +245,25 @@ button[type="submit"] {
 
 /* Special: Google social button */
 .btn-google {
-  background: #fff;
-  color: var(--btn-text-google, #444);
+  background: #DB4437;
+  color: #fff;
 }
 .btn-google:hover {
   background: #357ae8;
 }
 body.theme-sakura .btn-google {
   --btn-text-google: #222;
+}
+.auth-card .btn-primary {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  text-align: center;
+}
+.auth-card .btn-google {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 }
