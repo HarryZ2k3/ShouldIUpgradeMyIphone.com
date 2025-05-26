@@ -32,10 +32,17 @@ router.get('/google/callback',
   })
 );
 
-// — Logout —
-router.get('/logout', (req, res) => {
-  req.logout();
-  res.json({ message: 'Logged out' });
+// GET /auth/logout
+router.get('/logout', (req, res, next) => {
+  // Passport 0.6 requires callback for logout
+  req.logout(err => {
+    if (err) return next(err);
+    req.session.destroy(() => {
+      // Clear the session cookie on the client
+      res.clearCookie('connect.sid');
+      res.json({ ok: true });
+    });
+  });
 });
 
 // — Get current user —
