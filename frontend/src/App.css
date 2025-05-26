@@ -50,14 +50,25 @@ body.theme-sakura {
   --toggle-bg: #333;
   --toggle-text: #fff;
 }
-
+body.theme-sakura .btn-primary {
+  background-color: #a04b7a !important;
+  color: #fff !important;
+}
+body.theme-sakura .btn-google {
+  background-color: #4285f4 !important;
+  color: #fff !important;
+}
+body.theme-sakura .auth-card button[type="submit"] {
+  background-color: #a04b7a !important;
+  color: #fff !important;
+}
 /* — Re-apply theme variables — */
 body.theme-light,
 body.theme-dark,
 body.theme-sakura {
   background: var(--bg);
   color: var(--fg);
-  --btn-text-primary: #333;
+  --btn-text-primary: #ebdddd;
   --color-primary: #a04b7a;
 }
 
