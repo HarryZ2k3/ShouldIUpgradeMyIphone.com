@@ -1,3 +1,5 @@
+// File: src/App.js
+
 import './App.css';
 import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
@@ -17,7 +19,6 @@ function App() {
   // --- THEME SETUP ---
   const [theme, setTheme] = useState(() => Cookies.get('theme') || 'light');
   useEffect(() => {
-    // remove all theme classes, then apply the new one
     document.body.classList.remove('theme-light', 'theme-dark', 'theme-sakura');
     document.body.classList.add(`theme-${theme}`);
     Cookies.set('theme', theme, { expires: 365 });
@@ -102,8 +103,8 @@ function App() {
         if (c2 > c1) score++;
       }
     });
-    if (score >= 3)       return "✅ Upgrade Recommended";
-    if (score >= 1)       return "⚖️ Minimal Difference";
+    if (score >= 3) return "✅ Upgrade Recommended";
+    if (score >= 1) return "⚖️ Minimal Difference";
     return "❌ Downgrade or Not Worth It";
   };
 
@@ -163,18 +164,13 @@ function App() {
       <div className="App">
         <header className="site-header">
           <Link to="/">Home</Link> |{' '}
-          <Link to="/register">Register</Link>
-          <Link to="/">Home</Link> |{' '}
           <Link to="/login">Login</Link> |{' '}
           <Link to="/register">Register</Link>
         </header>
 
         <Routes>
-          {/* Registration */}
           <Route path="/login"    element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-
-          {/* Main comparator */}
           <Route path="/" element={
             <>
               {/* Theme toggle */}
