@@ -5,6 +5,21 @@
   color: var(--fg);
 }
 
+/* — Dark & Sakura Mode Card Variables — */
+:root {
+  /* Light-mode defaults */
+  --card-bg: #fff;
+  --card-text: #333;
+  --card-text-secondary: #555;
+}
+
+body.theme-dark {
+  /* Dark-mode overrides */
+  --card-bg: #2e2e3a;
+  --card-text: #f0f0f0;
+  --card-text-secondary: #ccc;
+}
+
 /* — Base & default variables — */
 body {
   /* fallback values */
@@ -37,7 +52,6 @@ body.theme-light {
 body.theme-dark {
   --bg: #121212;
   --fg: #e0e0e0;
-  --btn-text: #fff;
   --toggle-bg: var(--fg);
   --toggle-text: var(--bg);
 }
@@ -46,30 +60,16 @@ body.theme-dark {
 body.theme-sakura {
   --bg: linear-gradient(to bottom right, #e8f0ff, #ffe9f0);
   --fg: #333;
-  --btn-text: #fff;
   --toggle-bg: #333;
   --toggle-text: #fff;
 }
-body.theme-sakura .btn-primary {
-  background-color: #a04b7a !important;
-  color: #fff !important;
-}
-body.theme-sakura .btn-google {
-  background-color: #4285f4 !important;
-  color: #fff !important;
-}
-body.theme-sakura .auth-card button[type="submit"] {
-  background-color: #a04b7a !important;
-  color: #fff !important;
-}
+
 /* — Re-apply theme variables — */
 body.theme-light,
 body.theme-dark,
 body.theme-sakura {
   background: var(--bg);
   color: var(--fg);
-  --btn-text-primary: #ebdddd;
-  --color-primary: #a04b7a;
 }
 
 /* — Main container — */
@@ -100,13 +100,6 @@ body.theme-sakura {
   background: var(--bg);
 }
 
-.auth-card .btn {
-  display: block;
-  width: 100%;
-  margin: 0 0 1rem; 
-  text-align: center;
-}
-
 .auth-card {
   background: var(--bg);
   color: var(--fg);
@@ -123,20 +116,11 @@ body.theme-sakura {
   text-align: center;
 }
 
-/* Social button */
-.social-btn {
+.auth-card .btn {
+  display: block;
   width: 100%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-}
-
-.google-btn {
-  background: #4285F4;
-  color: #fff;
+  margin: 0 0 1rem;
+  text-align: center;
 }
 
 /* Divider */
@@ -176,7 +160,6 @@ body.theme-sakura {
   border-radius: 4px;
   background: var(--bg);
   color: var(--fg);
-  transition: background 0.3s ease, color 0.3s ease;
 }
 button[type="submit"] {
   width: 100%;
@@ -193,15 +176,14 @@ button[type="submit"] {
   margin-bottom: 1rem;
   text-align: center;
 }
+
 /* --- Button variables --- */
 :root {
-  --btn-text: #fff;
   --btn-radius: 0.375rem;
   --btn-padding: 0.6rem 1.2rem;
   --btn-font: 1rem;
   --btn-transition: background 0.2s ease, box-shadow 0.2s ease;
-  --btn-text-primary: #fff;
-  
+
   /* primary color (indigo) */
   --color-primary: #6366F1;
   --color-primary-hover: #4F46E5;
@@ -228,7 +210,7 @@ button[type="submit"] {
 .btn-primary {
   background: var(--color-primary);
   color: #fff;
-
+}
 .btn-primary:hover {
   background: var(--color-primary-hover);
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -262,19 +244,33 @@ button[type="submit"] {
 .btn-google:hover {
   background: #357ae8;
 }
+
+/* Auth-specific overrides for sakura */
+body.theme-sakura .btn-primary {
+  background-color: #a04b7a !important;
+  color: #fff !important;
+}
 body.theme-sakura .btn-google {
-  --btn-text-google: #222;
+  background-color: #4285f4 !important;
+  color: #fff !important;
 }
-.auth-card .btn-primary {
-  display: block;
-  width: 100%;
+
+/* — Comparison cards — */
+.spec-card {
+  background: var(--card-bg);
+  color: var(--card-text);
+}
+.spec-card h3 {
+  color: var(--card-text);
+}
+.spec-card ul li {
+  color: var(--card-text-secondary);
+}
+
+/* Result & verdict text */
+.result-display,
+.verdict-display {
+  color: var(--card-text);
+  text-align: center;
   margin-top: 1rem;
-  text-align: center;
-}
-.auth-card .btn-google {
-  display: block;
-  width: 100%;
-  margin-bottom: 1rem;
-  text-align: center;
-}
 }
