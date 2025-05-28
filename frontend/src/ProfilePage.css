@@ -112,3 +112,53 @@
 .favorite-slider::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* -----------------------------------
+   Favorites grid: horizontal layout
+------------------------------------ */
+.favorite-grid {
+  display: flex;
+  flex-wrap: wrap;              /* allow wrapping on small screens */
+  gap: 1rem;                    /* space between cards */
+  justify-content: flex-start;  /* align cards from the left */
+  padding: 1rem 0;
+}
+
+.model-card {
+  flex: 0 0 auto;               /* don’t grow or shrink */
+  width: 120px;                 /* uniform card width */
+  text-align: center;
+}
+
+/* Thumbnail size */
+.model-card .fav-image {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin: 0 auto 0.5rem;
+  display: block;
+}
+
+/* Model name */
+.model-card .model-name {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* ===========================
+   Make it mobile-friendly
+   =========================== */
+@media (max-width: 600px) {
+  .favorite-grid {
+    justify-content: center;   /* center on small viewports */
+  }
+  .model-card {
+    width: 45%;                /* two per row */
+  }
+}
+
+@media (max-width: 400px) {
+  .model-card {
+    width: 100%;               /* one per row */
+  }
+}
