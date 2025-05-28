@@ -1,5 +1,3 @@
-// File: routes/auth.js
-
 const express       = require('express');
 const passport      = require('passport');
 const bcrypt        = require('bcrypt');
@@ -74,6 +72,22 @@ router.put('/me/model', async (req, res) => {
   req.user.currentModel = req.body.model;
   await req.user.save();
   res.json({ currentModel: req.user.currentModel });
+});
+
+// — Get favorite models —
+router.get('/me/favorites', (req, res) => {
+  if (!req.isAuthenticated()) return res.sendStatus(401);
+  res.json({ favorites: req.user.favorites || [] });
+});
+
+// — Update favorite models —
+router.put('/me/favorites', async (req, res) => {
+  if (!req.isAuthenticated()) return res.sendStatus(401);
+  const { favorites } = req.body;
+  // Optional: validate array contents, enforce limits, etc.
+  req.user.favorites = Array.isArray(favorites) ? favorites : [];
+  await req.user.save();
+  res.json({ favorites: req.user.favorites });
 });
 
 // — Upload new avatar —
