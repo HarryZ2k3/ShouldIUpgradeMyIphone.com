@@ -63,8 +63,10 @@
 
 .favorite-slider {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  gap: 1rem;               /* space between cards */
+  overflow-x: auto;        /* scroll if too many to fit */
+  align-items: center;     /* vertically center cards */
+  padding: 0.5rem 0;
 }
 
 .model-card.placeholder {
@@ -82,4 +84,31 @@
 .arrow {
   font-size: 2rem;
   cursor: pointer;
+}
+
+.model-card {
+  flex: 0 0 auto;          /* don’t grow or shrink */
+  width: 100px;            /* uniform card width */
+  text-align: center;
+}
+
+/* Thumbnail images are all the same size and keep aspect ratio */
+.model-card .fav-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;     /* scale down/up but keep proportions */
+  margin: 0 auto 0.5rem;   /* center and add a little bottom space */
+  display: block;
+}
+
+/* Optional: hide scroll bar in WebKit but still allow scrolling */
+.favorite-slider::-webkit-scrollbar {
+  height: 6px;
+}
+.favorite-slider::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+.favorite-slider::-webkit-scrollbar-track {
+  background: transparent;
 }
