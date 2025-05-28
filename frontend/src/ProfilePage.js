@@ -1,39 +1,26 @@
-// src/ProfilePage.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = process.env.REACT_APP_API_URL;  // e.g. "https://api.your-domain.com"
+const API_BASE = process.env.REACT_APP_API_URL;
 
 export default function ProfilePage() {
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(null);
   const [options, setOptions] = useState([]);
-  const [model, setModel]     = useState('');
-  const [error, setError]     = useState('');
-  const navigate              = useNavigate();
+  const [model, setModel] = useState('');
+  const [error, setError] = useState('');
+  const [profileImage, setProfileImage] = useState(null);
+  const navigate = useNavigate();
 
-  // 1) Load user info
   useEffect(() => {
-    fetch(`${API_BASE}/auth/me`, { credentials: 'include' })
-      .then(res => {
-        if (res.status === 401) throw new Error('Not authenticated');
-        return res.json();
-      })
-      .then(data => {
-        setUser(data);
-        setModel(data.currentModel || '');
-      })
-      .catch(() => {
-        navigate('/login');
-      });
+    // Mock user
+    setUser({ name: 'Exian Maple', email: 'Example123@gmail.com', currentModel: '' });
 
-    // Fetch all iPhone models
     fetch(`${API_BASE}/api/iphones`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => setOptions(data.map(i => i["Model Name"])))
       .catch(err => console.error(err));
   }, [navigate]);
 
-  // 2) Save selected model
   const handleSave = async e => {
     e.preventDefault();
     setError('');
@@ -48,27 +35,55 @@ export default function ProfilePage() {
         const body = await res.json();
         throw new Error(body.error || 'Save failed');
       }
-      navigate('/'); // back to home
+      navigate('/');
     } catch (err) {
       setError(err.message);
     }
   };
 
-  if (!user) return null; // or a spinner
+  const handleImageChange = e => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(URL.createObjectURL(file));
+    }
+  };
+
+  if (!user) return null;
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Welcome, {user.email}</h2>
-        {error && <p className="error">{error}</p>}
+    <div className="profile-page-container">
+      {/* Back arrow */}
+      <div className="back-arrow" onClick={() => navigate('/')}>
+        &#x25C0;
+      </div>
+
+      <div className="profile-card">
+        {/* Profile section */}
+        <div className="profile-header">
+          <div className="profile-pic">
+            <input type="file" id="upload" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
+            <label htmlFor="upload">
+              <img
+                src={profileImage || '/placeholder-profile.png'}
+                alt="Profile"
+                className="avatar"
+              />
+            </label>
+          </div>
+          <div className="user-info">
+            <div className="user-name">{user.name}</div>
+            <div className="user-email">{user.email}</div>
+          </div>
+        </div>
+
+        <hr />
+
+        {/* Model selector */}
         <form onSubmit={handleSave}>
+          {error && <p className="error">{error}</p>}
           <div className="form-group">
             <label>Your current iPhone model</label>
-            <select
-              value={model}
-              onChange={e => setModel(e.target.value)}
-              required
-            >
+            <select value={model} onChange={e => setModel(e.target.value)} required>
               <option value="">— Select model —</option>
               {options.map((m, i) => (
                 <option key={i} value={m}>{m}</option>
@@ -77,6 +92,21 @@ export default function ProfilePage() {
           </div>
           <button type="submit" className="btn btn-primary">Save</button>
         </form>
+
+        <hr />
+
+        {/* Favorite models placeholder */}
+        <div className="favorite-section">
+          <div className="section-title">Favorite Model</div>
+          <div className="favorite-slider">
+            {/* Placeholder: your partner will implement this */}
+            <div className="model-card placeholder" />
+            <div className="model-card placeholder" />
+            <div className="model-card placeholder" />
+            <div className="counter">0/0</div>
+            <div className="arrow">{'>'}</div>
+          </div>
+        </div>
       </div>
     </div>
   );
