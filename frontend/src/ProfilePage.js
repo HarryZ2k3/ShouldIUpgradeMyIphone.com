@@ -79,7 +79,7 @@ export default function ProfilePage() {
   // choose which avatar to show
   const avatarSrc = user.avatarUrl
     ? `${API_BASE}${user.avatarUrl}`
-    : '/frontend/public/images/place_holder.png';
+    : '/images/place_holder.png';
 
   return (
     <div className="profile-page-container">
