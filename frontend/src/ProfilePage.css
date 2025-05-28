@@ -1,9 +1,10 @@
-/* ProfilePage.css */
-
 .profile-page-container {
   position: relative;
   padding: 2rem;
   font-family: sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .back-arrow {
@@ -12,15 +13,18 @@
   left: 1rem;
   font-size: 2rem;
   cursor: pointer;
+  color: var(--fg);
 }
 
 .profile-card {
   margin: 0 auto;
   max-width: 800px;
   padding: 2rem;
-  border: 2px solid #ccc;
+  background: var(--bg);
+  color: var(--fg);
+  border: 2px solid var(--fg);
   border-radius: 12px;
-  background-color: #fff;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .profile-header {
@@ -36,21 +40,46 @@
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
-  border: 2px solid #ddd;
+  border: 2px solid var(--fg);
 }
 
 .user-info .user-name {
   font-size: 1.5rem;
   font-weight: bold;
+  color: var(--fg);
 }
 
 .user-info .user-email {
   font-size: 1rem;
-  color: #666;
+  color: var(--fg);
+  opacity: 0.7;
 }
 
 .form-group {
   margin: 1rem 0;
+}
+
+/* Form controls use CSS vars */
+.profile-card input,
+.profile-card select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--fg);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.profile-card label {
+  color: var(--fg);
+}
+
+.profile-card button.btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  margin-top: 0.5rem;
 }
 
 .favorite-section {
@@ -61,77 +90,28 @@
   font-weight: bold;
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
+  color: var(--fg);
 }
 
-/* ===========================
-   Favorites: responsive grid
-   =========================== */
-.favorite-section .favorite-grid {
-  display: flex;
-  flex-wrap: wrap;             /* wrap to new lines */
-  gap: 1rem;                   /* space between cards */
-  justify-content: flex-start; /* align cards left */
-  padding: 1rem 0;
-}
-
-.favorite-section .model-card {
-  flex: 0 0 auto;              /* fixed size */
-  width: 120px;                /* uniform card width */
-  text-align: center;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 0.5rem;
-  background: #fafafa;
-}
-
-.favorite-section .fav-image {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  margin: 0 auto 0.5rem;
-  display: block;
-}
-
-.favorite-section .model-name {
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-  color: #333;
-}
-
-@media (max-width: 600px) {
-  .favorite-section .favorite-grid {
-    justify-content: center;   /* center on tablets */
-  }
-  .favorite-section .model-card {
-    width: 45%;                /* two per row */
-  }
-}
-
-@media (max-width: 400px) {
-  .favorite-section .model-card {
-    width: 100%;               /* one per row */
-  }
-}
-
-/* -----------------------------------
-   Autocomplete & chips styling
------------------------------------- */
+/* Autocomplete & chips */
 .favorite-input-container {
   position: relative;
 }
 .favorite-input {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--fg);
   border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg);
 }
 .suggestions-list {
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
+  background: var(--bg);
+  border: 1px solid var(--fg);
   border-radius: 4px;
   max-height: 150px;
   overflow-y: auto;
@@ -140,9 +120,11 @@
 .suggestions-list li {
   padding: 0.5rem;
   cursor: pointer;
+  color: var(--fg);
 }
 .suggestions-list li:hover {
-  background: #f0f0f0;
+  background: var(--toggle-bg);
+  color: var(--toggle-text);
 }
 .chips-container {
   display: flex;
@@ -151,7 +133,9 @@
   margin: 0.5rem 0;
 }
 .chip {
-  background: #e0e0e0;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--fg);
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   display: inline-flex;
@@ -162,11 +146,61 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  color: var(--fg);
   font-size: 1rem;
   line-height: 1;
 }
 
-/* Error message */
+/* Favorites grid uses CSS vars */
+.favorite-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start;
+  padding: 1rem 0;
+}
+
+.model-card {
+  flex: 0 0 auto;
+  width: 120px;
+  text-align: center;
+  background: var(--bg);
+  border: 1px solid var(--fg);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: var(--fg);
+}
+
+.fav-image {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin: 0 auto 0.5rem;
+  display: block;
+  transition: opacity 0.3s;
+}
+
+.model-name {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  color: var(--fg);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .favorite-grid {
+    justify-content: center;
+  }
+  .model-card {
+    width: 45%;
+  }
+}
+@media (max-width: 400px) {
+  .model-card {
+    width: 100%;
+  }
+}
+
 .error {
   color: #d9534f;
   margin-top: 0.5rem;
