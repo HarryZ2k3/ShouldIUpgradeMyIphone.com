@@ -1,3 +1,5 @@
+/* ProfilePage.css */
+
 .profile-page-container {
   position: relative;
   padding: 2rem;
@@ -61,77 +63,28 @@
   margin-bottom: 0.5rem;
 }
 
-.favorite-slider {
+/* ===========================
+   Favorites: responsive grid
+   =========================== */
+.favorite-section .favorite-grid {
   display: flex;
-  gap: 1rem;               /* space between cards */
-  overflow-x: auto;        /* scroll if too many to fit */
-  align-items: center;     /* vertically center cards */
-  padding: 0.5rem 0;
-}
-
-.model-card.placeholder {
-  width: 100px;
-  height: 100px;
-  background-color: #eee;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.counter {
-  font-weight: bold;
-}
-
-.arrow {
-  font-size: 2rem;
-  cursor: pointer;
-}
-
-.model-card {
-  flex: 0 0 auto;          /* don’t grow or shrink */
-  width: 100px;            /* uniform card width */
-  text-align: center;
-}
-
-/* Thumbnail images are all the same size and keep aspect ratio */
-.model-card .fav-image {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;     /* scale down/up but keep proportions */
-  margin: 0 auto 0.5rem;   /* center and add a little bottom space */
-  display: block;
-}
-
-/* Optional: hide scroll bar in WebKit but still allow scrolling */
-.favorite-slider::-webkit-scrollbar {
-  height: 6px;
-}
-.favorite-slider::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.2);
-  border-radius: 3px;
-}
-.favorite-slider::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* -----------------------------------
-   Favorites grid: horizontal layout
------------------------------------- */
-.favorite-grid {
-  display: flex;
-  flex-wrap: wrap;              /* allow wrapping on small screens */
-  gap: 1rem;                    /* space between cards */
-  justify-content: flex-start;  /* align cards from the left */
+  flex-wrap: wrap;             /* wrap to new lines */
+  gap: 1rem;                   /* space between cards */
+  justify-content: flex-start; /* align cards left */
   padding: 1rem 0;
 }
 
-.model-card {
-  flex: 0 0 auto;               /* don’t grow or shrink */
-  width: 120px;                 /* uniform card width */
+.favorite-section .model-card {
+  flex: 0 0 auto;              /* fixed size */
+  width: 120px;                /* uniform card width */
   text-align: center;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 0.5rem;
+  background: #fafafa;
 }
 
-/* Thumbnail size */
-.model-card .fav-image {
+.favorite-section .fav-image {
   width: 100px;
   height: 100px;
   object-fit: contain;
@@ -139,26 +92,83 @@
   display: block;
 }
 
-/* Model name */
-.model-card .model-name {
+.favorite-section .model-name {
   font-size: 0.85rem;
   margin-top: 0.25rem;
+  color: #333;
 }
 
-/* ===========================
-   Make it mobile-friendly
-   =========================== */
 @media (max-width: 600px) {
-  .favorite-grid {
-    justify-content: center;   /* center on small viewports */
+  .favorite-section .favorite-grid {
+    justify-content: center;   /* center on tablets */
   }
-  .model-card {
+  .favorite-section .model-card {
     width: 45%;                /* two per row */
   }
 }
 
 @media (max-width: 400px) {
-  .model-card {
+  .favorite-section .model-card {
     width: 100%;               /* one per row */
   }
+}
+
+/* -----------------------------------
+   Autocomplete & chips styling
+------------------------------------ */
+.favorite-input-container {
+  position: relative;
+}
+.favorite-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+.suggestions-list li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+.suggestions-list li:hover {
+  background: #f0f0f0;
+}
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.chip {
+  background: #e0e0e0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.chip-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Error message */
+.error {
+  color: #d9534f;
+  margin-top: 0.5rem;
+  text-align: center;
 }
