@@ -1,5 +1,7 @@
+// src/ProfilePage.js
+
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate }      from 'react-router-dom';
 import './ProfilePage.css';
 
 const API_BASE = 'https://shouldiupgrademyiphone-backend.onrender.com';
@@ -17,30 +19,31 @@ const modelImageMap = {
 
 function getModelImage(name) {
   const key = name.trim().toLowerCase();
-  return modelImageMap[key] ? `/images/${modelImageMap[key]}` : '/images/place_holder.png';
+  return modelImageMap[key]
+    ? `/images/${modelImageMap[key]}`
+    : '/images/place_holder.png';
 }
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(null);
-  const [options, setOptions] = useState([]);
-  const [model, setModel] = useState('');
-  const [favorites, setFavorites] = useState([]);
-  const [favIndex, setFavIndex] = useState(0);
-  const [favInput, setFavInput] = useState('');
-  const [error, setError] = useState('');
+  const [user,     setUser]      = useState(null);
+  const [options,  setOptions]   = useState([]);
+  const [model,    setModel]     = useState('');
+  const [favorites,setFavorites] = useState([]);
+  const [favInput, setFavInput]  = useState('');
+  const [error,    setError]     = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    // load user
+    // load user and current model
     fetch(`${API_BASE}/auth/me`, { credentials: 'include' })
-      .then(res => res.ok ? res.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject())
       .then(u => {
         setUser(u);
         setModel(u.currentModel || '');
       })
       .catch(() => navigate('/login'));
 
-    // load models
+    // load all models
     fetch(`${API_BASE}/api/iphones`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => setOptions(data.map(i => i['Model Name'])))
@@ -48,14 +51,12 @@ export default function ProfilePage() {
 
     // load favorites
     fetch(`${API_BASE}/auth/me/favorites`, { credentials: 'include' })
-      .then(res => res.ok ? res.json() : Promise.reject())
-      .then(d => {
-        setFavorites(d.favorites);
-        setFavIndex(0);
-      })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => setFavorites(d.favorites || []))
       .catch(console.error);
   }, [navigate]);
 
+  // save current model
   const handleSaveModel = async e => {
     e.preventDefault();
     setError('');
@@ -73,19 +74,19 @@ export default function ProfilePage() {
     }
   };
 
+  // add a favorite via autocomplete
   const handleAddFavorite = val => {
     if (!val || favorites.includes(val)) return;
     setFavorites([...favorites, val]);
     setFavInput('');
-    setFavIndex(favorites.length);
   };
 
+  // remove a favorite chip
   const handleRemoveFavorite = val => {
-    const newFav = favorites.filter(f => f !== val);
-    setFavorites(newFav);
-    setFavIndex(i => Math.max(0, Math.min(newFav.length - 1, i)));
+    setFavorites(favorites.filter(f => f !== val));
   };
 
+  // persist favorites
   const handleSaveFavorites = async () => {
     setError('');
     try {
@@ -103,6 +104,7 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
+  // suggestion list under input
   const suggestions = favInput
     ? options.filter(o =>
         o.toLowerCase().includes(favInput.toLowerCase()) &&
@@ -110,19 +112,24 @@ export default function ProfilePage() {
       )
     : [];
 
-  const currentFav = favorites[favIndex] || null;
-
   return (
     <div className="profile-page-container">
       <div className="back-arrow" onClick={() => navigate('/')}>◀</div>
+
       <div className="profile-card">
-        {/* avatar and user info omitted for brevity */}
+        {/* avatar + info omitted for brevity */}
 
         <form onSubmit={handleSaveModel} className="form-group">
           <label>Your current iPhone model</label>
-          <select value={model} onChange={e => setModel(e.target.value)} required>
+          <select
+            value={model}
+            onChange={e => setModel(e.target.value)}
+            required
+          >
             <option value="">— Select model —</option>
-            {options.map((m,i) => <option key={i} value={m}>{m}</option>)}
+            {options.map((m,i) => (
+              <option key={i} value={m}>{m}</option>
+            ))}
           </select>
           <button type="submit" className="btn btn-primary">Save</button>
         </form>
@@ -134,28 +141,40 @@ export default function ProfilePage() {
           <div className="favorite-input-container">
             <input
               type="text"
+              placeholder="Start typing to search…"
               className="favorite-input"
-              placeholder="Type model name..."
               value={favInput}
               onChange={e => setFavInput(e.target.value)}
             />
             {suggestions.length > 0 && (
               <ul className="suggestions-list">
-                {suggestions.slice(0,5).map((s,i) => (
-                  <li key={i} onClick={() => handleAddFavorite(s)}>{s}</li>
+                {suggestions.slice(0, 5).map((s,i) => (
+                  <li key={i} onClick={() => handleAddFavorite(s)}>
+                    {s}
+                  </li>
                 ))}
               </ul>
             )}
           </div>
+
           <div className="chips-container">
             {favorites.map((f,i) => (
               <span key={i} className="chip">
                 {f}
-                <button type="button" className="chip-remove" onClick={() => handleRemoveFavorite(f)}>×</button>
+                <button
+                  type="button"
+                  className="chip-remove"
+                  onClick={() => handleRemoveFavorite(f)}
+                >×</button>
               </span>
             ))}
           </div>
-          <button type="button" className="btn btn-secondary" onClick={handleSaveFavorites}>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleSaveFavorites}
+          >
             Save Favorites
           </button>
         </div>
@@ -163,33 +182,21 @@ export default function ProfilePage() {
         <hr />
 
         <div className="favorite-section">
-          <div className="section-title">Favorite Models Preview</div>
+          <div className="section-title">Your Favorite Models</div>
           {favorites.length === 0 ? (
             <p>No favorites selected.</p>
           ) : (
-            <div className="favorite-slider">
-              <button
-                className="btn btn-ghost"
-                onClick={() => setFavIndex(i => Math.max(0, i - 1))}
-                disabled={favIndex === 0}
-              >‹</button>
-
-              <div className="model-card">
-                <h4>{currentFav}</h4>
-                <img
-                  src={getModelImage(currentFav)}
-                  alt={currentFav}
-                  className="fav-image"
-                />
-              </div>
-
-              <button
-                className="btn btn-ghost"
-                onClick={() => setFavIndex(i => Math.min(favorites.length - 1, i + 1))}
-                disabled={favIndex === favorites.length - 1}
-              >›</button>
-
-              <div className="counter">{favIndex + 1}/{favorites.length}</div>
+            <div className="favorite-grid">
+              {favorites.map((fav,i) => (
+                <div className="model-card" key={i}>
+                  <img
+                    src={getModelImage(fav)}
+                    alt={fav}
+                    className="fav-image"
+                  />
+                  <div className="model-name">{fav}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>
