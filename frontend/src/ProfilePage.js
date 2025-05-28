@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate }      from 'react-router-dom';
 import './ProfilePage.css';
 
-const API_BASE = 'https://shouldiupgrademyiphone-backend.onrender.com';
+const API_BASE = process.env.REACT_APP_API_URL;
 
 // map model names to image filenames
 const modelImageMap = {
@@ -56,7 +56,6 @@ export default function ProfilePage() {
       });
       if (!res.ok) throw new Error('Upload failed');
       const { avatarUrl } = await res.json();
-      // update user state
       setUser(u => ({ ...u, avatarUrl }));
     } catch {
       setError('Failed to upload avatar');
@@ -64,32 +63,29 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    // 1) fetch user profile
+    // fetch user profile
     fetch(`${API_BASE}/auth/me`, { credentials: 'include' })
-      .then(r => {
-        if (!r.ok) throw new Error();
-        return r.json();
-      })
+      .then(r => r.ok ? r.json() : Promise.reject())
       .then(u => {
         setUser(u);
         setModel(u.currentModel || '');
       })
       .catch(() => navigate('/login'));
 
-    // 2) fetch favorites
+    // fetch favorites
     fetch(`${API_BASE}/auth/me/favorites`, { credentials: 'include' })
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => setFavorites(d.favorites || []))
       .catch(console.error);
 
-    // 3) fetch all iPhone models
+    // fetch all iPhone models
     fetch(`${API_BASE}/api/iphones`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => setOptions(data.map(i => i['Model Name'])))
       .catch(console.error);
   }, [navigate]);
 
-  // Save current model
+  // Save current model: now reload page instead of navigate home
   const handleSaveModel = async e => {
     e.preventDefault();
     setError('');
@@ -101,7 +97,8 @@ export default function ProfilePage() {
         body: JSON.stringify({ model })
       });
       if (!res.ok) throw new Error();
-      navigate('/');
+      // refresh current profile page
+      window.location.reload();
     } catch {
       setError('Failed to save current model');
     }
@@ -130,6 +127,7 @@ export default function ProfilePage() {
         body: JSON.stringify({ favorites })
       });
       if (!res.ok) throw new Error();
+      window.location.reload();
     } catch {
       setError('Failed to save favorites');
     }
@@ -139,8 +137,7 @@ export default function ProfilePage() {
 
   const suggestions = favInput
     ? options.filter(o =>
-        o.toLowerCase().includes(favInput.toLowerCase()) &&
-        !favorites.includes(o)
+        o.toLowerCase().includes(favInput.toLowerCase()) && !favorites.includes(o)
       )
     : [];
 
@@ -148,7 +145,7 @@ export default function ProfilePage() {
     <div className="profile-page-container">
       <div className="back-arrow" onClick={() => navigate('/')}>◀</div>
       <div className="profile-card">
-        {/* Profile Header */}
+        {/* === Profile Header === */}
         <div className="profile-header">
           <label htmlFor="avatar-upload" className="profile-pic">
             <img
@@ -172,7 +169,7 @@ export default function ProfilePage() {
 
         <hr />
 
-        {/* Current Model */}
+        {/* === Current Model === */}
         <form onSubmit={handleSaveModel} className="form-group">
           <label>Your current iPhone model</label>
           <select value={model} onChange={e => setModel(e.target.value)} required>
@@ -186,7 +183,7 @@ export default function ProfilePage() {
 
         <hr />
 
-        {/* Add Favorites */}
+        {/* === Add Favorites === */}
         <div className="form-group">
           <label>Add Favorite Models</label>
           <div className="favorite-input-container">
@@ -209,26 +206,18 @@ export default function ProfilePage() {
             {favorites.map((f,i) => (
               <span key={i} className="chip">
                 {f}
-                <button
-                  type="button"
-                  className="chip-remove"
-                  onClick={() => handleRemoveFavorite(f)}
-                >×</button>
+                <button type="button" className="chip-remove" onClick={() => handleRemoveFavorite(f)}>×</button>
               </span>
             ))}
           </div>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={handleSaveFavorites}
-          >
+          <button type="button" className="btn btn-secondary" onClick={handleSaveFavorites}>
             Save Favorites
           </button>
         </div>
 
         <hr />
 
-        {/* Favorites Preview Grid */}
+        {/* === Favorites Preview Grid === */}
         <div className="favorite-section">
           <div className="section-title">Your Favorite Models</div>
           {favorites.length === 0 ? (
@@ -237,11 +226,7 @@ export default function ProfilePage() {
             <div className="favorite-grid">
               {favorites.map((fav,i) => (
                 <div className="model-card" key={i}>
-                  <img
-                    src={getModelImage(fav)}
-                    alt={fav}
-                    className="fav-image"
-                  />
+                  <img src={getModelImage(fav)} alt={fav} className="fav-image" />
                   <div className="model-name">{fav}</div>
                 </div>
               ))}
