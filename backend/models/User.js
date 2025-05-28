@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   passwordHash:{ type: String                   },
   googleId:    { type: String, unique: true, sparse: true },
   currentModel:{ type: String                   },
+  avatarUrl: String 
 });
 
 module.exports = mongoose.model('User', userSchema);
