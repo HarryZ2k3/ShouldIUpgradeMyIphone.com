@@ -41,25 +41,48 @@ export default function ProfilePage() {
   const [error,     setError]     = useState('');
   const navigate = useNavigate();
 
-  // Stubbed avatar handler; replace with your upload endpoint logic
-  const handleAvatarChange = e => {
+  // Upload new avatar
+  const handleAvatarChange = async e => {
     const file = e.target.files[0];
-    console.log('Selected avatar file:', file);
-    // TODO: upload via multipart to /auth/me/avatar
+    if (!file) return;
+    const form = new FormData();
+    form.append('avatar', file);
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/me/avatar`, {
+        method: 'POST',
+        credentials: 'include',
+        body: form
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const { avatarUrl } = await res.json();
+      // update user state
+      setUser(u => ({ ...u, avatarUrl }));
+    } catch {
+      setError('Failed to upload avatar');
+    }
   };
 
   useEffect(() => {
-    // 1) fetch current user
+    // 1) fetch user profile
     fetch(`${API_BASE}/auth/me`, { credentials: 'include' })
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
       .then(u => {
         setUser(u);
         setModel(u.currentModel || '');
-        setFavorites(u.favorites || []);
       })
       .catch(() => navigate('/login'));
 
-    // 2) load all models
+    // 2) fetch favorites
+    fetch(`${API_BASE}/auth/me/favorites`, { credentials: 'include' })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => setFavorites(d.favorites || []))
+      .catch(console.error);
+
+    // 3) fetch all iPhone models
     fetch(`${API_BASE}/api/iphones`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => setOptions(data.map(i => i['Model Name'])))
@@ -73,8 +96,8 @@ export default function ProfilePage() {
     try {
       const res = await fetch(`${API_BASE}/auth/me/model`, {
         method: 'PUT',
-        headers:{ 'Content-Type':'application/json' },
-        credentials:'include',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ model })
       });
       if (!res.ok) throw new Error();
@@ -102,8 +125,8 @@ export default function ProfilePage() {
     try {
       const res = await fetch(`${API_BASE}/auth/me/favorites`, {
         method: 'PUT',
-        headers:{ 'Content-Type':'application/json' },
-        credentials:'include',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ favorites })
       });
       if (!res.ok) throw new Error();
@@ -125,7 +148,7 @@ export default function ProfilePage() {
     <div className="profile-page-container">
       <div className="back-arrow" onClick={() => navigate('/')}>◀</div>
       <div className="profile-card">
-        {/* === Profile Header === */}
+        {/* Profile Header */}
         <div className="profile-header">
           <label htmlFor="avatar-upload" className="profile-pic">
             <img
@@ -149,7 +172,7 @@ export default function ProfilePage() {
 
         <hr />
 
-        {/* === Current Model === */}
+        {/* Current Model */}
         <form onSubmit={handleSaveModel} className="form-group">
           <label>Your current iPhone model</label>
           <select value={model} onChange={e => setModel(e.target.value)} required>
@@ -163,7 +186,7 @@ export default function ProfilePage() {
 
         <hr />
 
-        {/* === Add Favorites === */}
+        {/* Add Favorites */}
         <div className="form-group">
           <label>Add Favorite Models</label>
           <div className="favorite-input-container">
@@ -177,9 +200,7 @@ export default function ProfilePage() {
             {suggestions.length > 0 && (
               <ul className="suggestions-list">
                 {suggestions.slice(0,5).map((s,i) => (
-                  <li key={i} onClick={() => handleAddFavorite(s)}>
-                    {s}
-                  </li>
+                  <li key={i} onClick={() => handleAddFavorite(s)}>{s}</li>
                 ))}
               </ul>
             )}
@@ -207,7 +228,7 @@ export default function ProfilePage() {
 
         <hr />
 
-        {/* === Favorites Preview Grid === */}
+        {/* Favorites Preview Grid */}
         <div className="favorite-section">
           <div className="section-title">Your Favorite Models</div>
           {favorites.length === 0 ? (
