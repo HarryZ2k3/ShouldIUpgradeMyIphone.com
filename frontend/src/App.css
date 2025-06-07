@@ -58,11 +58,12 @@ body.theme-dark {
 
 /* — Sakura theme (your original pink-blue gradient) — */
 body.theme-sakura {
-  --bg: linear-gradient(to bottom right, #e8f0ff, #ffe9f0);
-  --fg: #333;
+  --bg: linear-gradient(to right, #abfcff, #ffacc6);
+  --fg: #972a52;
   --toggle-bg: #333;
   --toggle-text: #fff;
 }
+
 
 /* — Re-apply theme variables — */
 body.theme-light,
